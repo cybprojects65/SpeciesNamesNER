@@ -59,8 +59,9 @@ public class Orchestrator {
 		ASFAResearchObject ResearchObject = new ASFAResearchObject();
 		String[] tokens = ResearchObject.caputure(caller.getOutputJsonFile().toString());
 		// il metodo sottostante (enrich) è ancora in fase di sviluppo
-		ResearchObject.enrich(tokens);
-//		ResearchObject.save();
+		boolean match[] = ResearchObject.get(tokens);
+		String[] enriched = ResearchObject.enrich(match, caller.getOutputJsonFile().toString());
+		ResearchObject.save(enriched);
 
 	}
 
