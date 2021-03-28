@@ -1,20 +1,15 @@
 package it.cnr.asfa.textprocessing;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 
-import org.json.JSONObject;
 
 import it.cnr.asfa.textprocessing.utils.EfficientSearchInText;
 
@@ -35,24 +30,21 @@ public class ASFAResearchObject {
 	LinkedHashMap<String, String> annotationstext = new LinkedHashMap<String, String>();
 	LinkedHashMap<String, String> jsonAnnotations = new LinkedHashMap<String, String>();
 
-	// Metodo che ottiene il testo pulito dal file JSON ricavato dall'output di
-	// NLPHub
-	public void capture(String filename) throws IOException {
-		FileReader file = new FileReader(filename);
-		BufferedReader reader = new BufferedReader(file);
+	
+	// Metodo che salva il tetso del txt in una variabile chiamata "puretext"
+	public void capture(String fileName) {
+	    String text = "";
+	    try {
+	      text = new String(Files.readAllBytes(Paths.get(fileName)));
+	    } catch (IOException e) {
+	      e.printStackTrace();
+	    }
 
-		String key = "";
-		String line = reader.readLine();
-
-		while (line != null) {
-			key += line;
-			line = reader.readLine();
-		}
-
-		String jsonString = key;
-		JSONObject obj = new JSONObject(jsonString);
-		puretext = obj.getString("text");
-	}
+	    puretext = text;
+	  }
+		
+		
+	
 
 	// Metodo identifica le tassonomie e nel testo e le salva nella
 	// variabile "matches"
@@ -70,18 +62,20 @@ public class ASFAResearchObject {
 			TokenizedjsonText[i] = TokenizedjsonText[i].replaceAll("[^a-zA-Z ]", "").toLowerCase();
 		}
 		EfficientSearchInText est = new EfficientSearchInText();
-		File referenceTaxa = new File("taxon.csv");
+		File referenceTaxa = new File("epithet_genus.csv");
 		int nthreads = 8;
 
 		boolean found[] = est.searchParallel(TokenizedjsonText, referenceTaxa, nthreads);
-		System.out.println("Found " + Arrays.toString(found));
 		matches = found;
 	}
 
+	
+	
 	public void enrich(String annotationName) throws IOException {
 
 		// Salvo la stringa che indica la categoria delle annotazioni in una variabile che utilizzerò successiamente
 		category = annotationName;
+		// Utilizzando l'espressione regolare qui sotto i doppi spazi sono considerati come uno unico
 		String[] TokenizedjsonText = puretext.split("\\s+");
 		// Variabile per il file TXT
 		StringBuffer sb = new StringBuffer();
@@ -91,7 +85,7 @@ public class ASFAResearchObject {
 		// fine delle parole nel testo (quelli che servono per il file JSON)
 		int s0 = 0;
 		int s1 = 0;
-		annotation.append("\"" + annotationName + "\":");
+		annotation.append("\"" + annotationName + "\":[");
 		for (int i = 0; i < TokenizedjsonText.length; i++) {
 			if (matches[i] == true) {
 				sb.append(" [" + TokenizedjsonText[i] + "]");
@@ -107,76 +101,35 @@ public class ASFAResearchObject {
 		}
 
 		String speciesAnnotation = sb.toString();
-		System.out.println(category + speciesAnnotation);
+		System.out.println(speciesAnnotation);
 		annotationstext.put(annotationName, speciesAnnotation);
 		jsonAnnotations.put(annotationName, annotation.toString());
 
 	}
+	
 
-	// Rimuovo le annotazioni superflue (tutte tranne quella di merge dal file .JSON
-	// e aggiung quelle di Taxon)
-	public void materializeText(String filename) throws IOException {
-		File file = new File(filename);
-		File temp = File.createTempFile("file", ".txt", file.getParentFile());
+	// creo il file di output in formato TXT e stampo  le annotazioni ottenute
+	public void materializeText() throws IOException {
+		File file = new File("output.txt");
 		String charset = "UTF-8";
-		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
-		PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(temp), charset));
-		int count = 0;
-		for (String line; (line = reader.readLine()) != null;) {
-			if (line.contains("##") && count != 1) {
-				break;
-			}
-			count = count + 1;
-			writer.println(line);
-		}
-
-		// Stampo le nuove annotazioni successivamente a quelle di MERGE e chiudo
-		writer.append("##" + category.toUpperCase() + "##" );
+		PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), charset));
+		writer.append("Original text:"+ "\n" + puretext+ "\n" );
+		writer.append("##" + category.toUpperCase() + ":##" + "\n");
 		writer.print(annotationstext.get(category));
-		reader.close();
 		writer.close();
-		file.delete();
-		temp.renameTo(file);
 	}
 
-	// Rimuovo le annotazioni superflue (tutte tranne quella di merge dal file .JSON
-	// e aggiung quelle di Taxon)
-	public void materializeJSON(String filename) throws IOException {
+	
+	// creo il file di output in formato JSON e stampo le annotazioni ottenute
 
-		FileReader file = new FileReader(filename);
-		BufferedReader reader = new BufferedReader(file);
+	public void materializeJSON() throws IOException {
 
-		String key = "";
-		String line = reader.readLine();
-
-		while (line != null) {
-			key += line;
-			line = reader.readLine();
+		File file = new File("output.json");
+		String charset = "UTF-8";
+		PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), charset));
+		writer.append("{ \"text\": \"" + puretext.replace("\n", "").replace("\r", "")+ "\", \"entities\": {" );
+		writer.append(jsonAnnotations.get(category).toString() + "]} } ");	
+		writer.close();
 		}
-
-		String jsonString = key;
-		JSONObject obj = new JSONObject(jsonString);
-		// Questo elemento mancante dal file json non causa errore
-		obj.remove("prova");
-		obj.remove(
-				"org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.ENGLISH_NER_CORENLP");
-		obj.remove(
-				"org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.OPEN_NLP_ENGLISH_PIPELINE");
-		obj.remove(
-				"org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.TAGME_ENGLISH_NER");
-		obj.remove(
-				"org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.ANNIE_PLUS_MEASUREMENTS");
-		obj.remove(
-				"org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.ENGLISH_NAMED_ENTITY_RECOGNIZER");
-		obj.remove(
-				"org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.KEYWORDS_NER_ENGLISH");
-		BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false));
-		writer.append("");
-		//Salvo il JSON rimuovando l'ultimo carattere che è una parentesi
-		writer.append(obj.toString().substring(0, obj.toString().length() - 1));
-		// Aggiungo quelle di Taxon
-		writer.append("," + jsonAnnotations.get(category).toString());
-		writer.close();
-	}
 
 }
