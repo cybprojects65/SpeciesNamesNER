@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,7 +15,7 @@ public class EfficientSearchInText {
 	
 	public static void main(String[] args) throws Exception {
 		EfficientSearchInText est = new EfficientSearchInText();
-		File ref = new File("taxons.csv");
+		File ref = new File("");
 		long t0 = System.currentTimeMillis();
 
 		BufferedReader br = new BufferedReader(new FileReader(ref));
@@ -139,10 +140,14 @@ public class EfficientSearchInText {
 					int j = 0;
 					for (String s : toSearch) {
 						//if (!found(j)) {
+//						SE DECOMMENTO QUESTA LINEA VERRANNO STAMPATE PIU' LINEE PER LA STESSA NEL FILE CSV E ANCHE I VALORI NULLI
+//						System.out.println(line);
+//						CON QUESTA CONDIZIONE SI RISOLVE IL PROBLEMA MA SI RALLENTA ANCHE L'ESECUZIONE
+						if (line!= null) {
 						if (!found[j] && line.equals(s)) {
 								//setFound(j);
 								found[j]=true;
-						}
+						}}
 						j++;
 					}
 					line = br.readLine();
