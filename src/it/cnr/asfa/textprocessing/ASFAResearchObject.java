@@ -96,11 +96,11 @@ public class ASFAResearchObject {
 				annotation.append("{\"indices\":[" + s0 + "," + s1 + "]},");
 				s0 = s0 + words[i].length() + 1;
 				s1 = s1 + 1;
-			} else
+			} else {
 				sb.append(" " + words[i]);
 			s1 = s1 + words[i].length() + 1;
 			s0 = s0 + words[i].length() + 1;
-
+			}
 		}
 
 		String speciesAnnotation = sb.toString();
