@@ -129,6 +129,24 @@ public class ASFAResearchObject {
 				}
 			}
 		}
+		//NOTA: inserire qui il sistema a regole sui genus e species:
+		/*
+		1 - se l'annotazione contiene 
+		un SOLO genus e ALMENO UN epithet 
+			oppure 
+		una lettera puntata e ALMENO UN epithet allora 
+			-> se non c'è nella lista dei "genus epithet" allora scartiamo
+			-> altrimenti accettiamo
+		2 - se contiene 2 genus -> scartiamo
+		3 - se contiene 0 genus -> scartiamo
+		4 - se contiene 1 genus ma è una parola inglese (nella lista common english words) -> scartiamo
+
+		Generazione del dataset "genus epithet":
+		per ogni entry di GBIF, aggiungere
+			G. epithet
+			Genus epithet
+		*/
+		
 		// A questo punto leggo il file originale in modo da stamparlo nuovamente con le
 		// annotazioni
 		String testooriginale = new String(Files.readAllBytes(new File(filename).toPath()));
@@ -138,11 +156,11 @@ public class ASFAResearchObject {
 		List<Integer> index = new ArrayList<>();
 		for (String annot : allAnnotationsequences) {
 			if (annot.contains(" ")) {
-				int s1 = testooriginale.indexOf(annot);
+				int s1 = testooriginale.indexOf(annot); //BUG: se ci sono più annotazioni uguali viene presa sempre la prima occorrenza nel testo
 				int s2 = annot.length() + s1;
 				index.add(s1);
 				index.add(s2);
-				testooriginale = testooriginale.replace(annot, "[" + annot + "]");
+				testooriginale = testooriginale.replace(annot, "[" + annot + "]"); //BUG: qui invece vengono annotate tutte le occorrenze nel testo
 			}
 		}
 		Collections.sort(index);
