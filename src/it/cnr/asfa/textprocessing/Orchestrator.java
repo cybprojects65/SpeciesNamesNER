@@ -9,7 +9,7 @@ public class Orchestrator {
 	public static void main(String[] args) throws Exception {
 		System.out.println("ASFA Text Miner has started...");
 
-		
+			
 		String annotationsParsed[] = null;
 		List<String> annotations = null;
 		String language = null;

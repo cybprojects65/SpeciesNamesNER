@@ -1,8 +1,10 @@
 package it.cnr.asfa.textprocessing.utils;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +14,8 @@ import java.util.concurrent.Executors;
 
 public class EfficientSearchInText {
 
+	
+	int maxLines;
 	
 	public static void main(String[] args) throws Exception {
 		EfficientSearchInText est = new EfficientSearchInText();
@@ -49,9 +53,34 @@ public class EfficientSearchInText {
 	
 	public boolean[] searchParallel(String[] toSearch, File referenceFile, int nThreads) throws Exception{
 
+
 		
-		int maxLines = 6244995;
+
+		// ottengo il numero di linee presenti nel file csv
 		
+	    InputStream is = new BufferedInputStream(new FileInputStream(referenceFile));
+	    try {
+	        byte[] c = new byte[1024];
+	        int count = 0;
+	        int readChars = 0;
+	        boolean empty = true;
+	        while ((readChars = is.read(c)) != -1) {
+	            empty = false;
+	            for (int i = 0; i < readChars; ++i) {
+	                if (c[i] == '\n') {
+	                    ++count;
+	                }
+	            }
+	        }
+	    maxLines = count;
+
+	    } finally {
+	        is.close();
+	    }
+		
+		System.out.println(maxLines);
+		
+
 		ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
 		int chunkLength = maxLines/nThreads;
 		comparisons = 0;
@@ -139,15 +168,11 @@ public class EfficientSearchInText {
 					//System.out.println("Searching line "+line);
 					int j = 0;
 					for (String s : toSearch) {
-						//if (!found(j)) {
-//						SE DECOMMENTO QUESTA LINEA VERRANNO STAMPATE PIU' LINEE PER LA STESSA NEL FILE CSV E ANCHE I VALORI NULLI
-//						System.out.println(line);
-//						CON QUESTA CONDIZIONE SI RISOLVE IL PROBLEMA MA SI RALLENTA ANCHE L'ESECUZIONE
-						if (line!= null) {
+
 						if (!found[j] && line.equals(s)) {
 								//setFound(j);
 								found[j]=true;
-						}}
+						}
 						j++;
 					}
 					line = br.readLine();

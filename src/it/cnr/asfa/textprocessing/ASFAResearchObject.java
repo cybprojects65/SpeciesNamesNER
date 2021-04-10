@@ -134,7 +134,7 @@ public class ASFAResearchObject {
 		String testooriginale = new String(Files.readAllBytes(new File(filename).toPath()));
 		StringBuilder jsonIndex = new StringBuilder();
 		// Rimuovo i line breaks
-		testooriginale = testooriginale.replace("\n", "").replace("\r", "");
+		testooriginale = testooriginale.replace("\n", " ").replace("\r", "");
 		List<Integer> index = new ArrayList<>();
 		for (String annot : allAnnotationsequences) {
 			if (annot.contains(" ")) {
@@ -174,7 +174,7 @@ public class ASFAResearchObject {
 		PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), charset));
 		writer.append("{ \"text\": \"");
 		String testooriginale = new String(Files.readAllBytes(new File(filename).toPath()));
-		writer.append(testooriginale.replace("\n", "").replace("\r", ""));
+		writer.append(testooriginale.replace("\n", " ").replace("\r", ""));
 		writer.append("\", \"entities\": [");
 		writer.append(annotationsjson.get(category) + "]}");
 		writer.close();
