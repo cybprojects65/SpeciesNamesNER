@@ -153,21 +153,41 @@ public class ASFAResearchObject {
 		StringBuilder jsonIndex = new StringBuilder();
 		// Rimuovo i line breaks
 		testooriginale = testooriginale.replace("\n", " ").replace("\r", "");
-		List<Integer> index = new ArrayList<>();
+		// Rimuovo le possibili parentesi quadre presenti nel testo di input
+		testooriginale = testooriginale.replace("[", " ").replace("]", " ");
 		for (String annot : allAnnotationsequences) {
 			if (annot.contains(" ")) {
-				int s1 = testooriginale.indexOf(annot); //BUG: se ci sono più annotazioni uguali viene presa sempre la prima occorrenza nel testo
-				int s2 = annot.length() + s1;
-				index.add(s1);
-				index.add(s2);
-				testooriginale = testooriginale.replace(annot, "[" + annot + "]"); //BUG: qui invece vengono annotate tutte le occorrenze nel testo
+				testooriginale = testooriginale.replace(annot, "[" + annot + "]"); 
 			}
 		}
-		Collections.sort(index);
-		for (int i = 0; i < index.size(); i = i + 2) {
-			jsonIndex.append("{\"indices\": [" + index.get(i) + "," + index.get(i + 1) + "]},");
-		}
 
+		
+		// Identificazione indici parentesi di annotazione da inserire nel JSON
+		List<Integer> indices = new ArrayList<>();
+		String primaparentesi = "[";
+		String secondaparentesi = "]";
+		int counter_one = 0;
+		int index_primaparentesi= testooriginale.indexOf(primaparentesi);
+		while (index_primaparentesi >= 0) {
+			indices.add(index_primaparentesi - counter_one);
+			counter_one = counter_one + 2;
+//		    System.out.println(index_primaparentesi);
+		    index_primaparentesi = testooriginale.indexOf(primaparentesi, index_primaparentesi + 1);
+		}
+		int counter_two = 0;
+		int index_secondaparentesi= testooriginale.indexOf(secondaparentesi);
+		while (index_secondaparentesi >= 0) {
+			indices.add(index_secondaparentesi - counter_two - 1);
+			counter_two = counter_two + 2;
+//		    System.out.println(index_secondaparentesi);
+		    index_secondaparentesi = testooriginale.indexOf(secondaparentesi, index_secondaparentesi + 1);
+		}
+		Collections.sort(indices);
+		for (int i = 0; i < indices.size(); i = i + 2) {
+			jsonIndex.append("{\"indices\": [" + indices.get(i) + "," + indices.get(i + 1) + "]},");
+		}
+		
+		// Inserimento delle annotazioni nei rispettivi oggetti
 		annotationstext.put(annotationName, testooriginale);
 		annotationsjson.put(annotationName, jsonIndex.toString());
 	}
