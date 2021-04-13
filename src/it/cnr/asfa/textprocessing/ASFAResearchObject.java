@@ -127,8 +127,19 @@ public class ASFAResearchObject {
 					// match ha dato valore positivo
 					annotationseq = (words[i]);
 				}
+			}else {
+				if (annotationseq.length() > 0) {
+					allAnnotationsequences.add(annotationseq);
+					annotationseq="";
+				}
 			}
 		}
+		
+		if (annotationseq.length() > 0) {
+			allAnnotationsequences.add(annotationseq);
+			annotationseq="";
+		}
+		
 		//NOTA: inserire qui il sistema a regole sui genus e species:
 		/*
 		1 - se l'annotazione contiene 
@@ -182,6 +193,8 @@ public class ASFAResearchObject {
 //		    System.out.println(index_secondaparentesi);
 		    index_secondaparentesi = testooriginale.indexOf(secondaparentesi, index_secondaparentesi + 1);
 		}
+		//FUTURE MOD: we have got [Latimeria chalumnae], [L. menadoensis] in Mozambique
+		//FUTURE MOD: we have got [Canis lupus marinus] in Mozambique
 		Collections.sort(indices);
 		for (int i = 0; i < indices.size(); i = i + 2) {
 			jsonIndex.append("{\"indices\": [" + indices.get(i) + "," + indices.get(i + 1) + "]},");
