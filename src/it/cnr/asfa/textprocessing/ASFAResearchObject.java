@@ -173,7 +173,10 @@ public class ASFAResearchObject {
 //    				-> se non c'è nella lista dei "genus epithet" allora scartiamo
 //    				-> altrimenti accettiamo
 					File checkTaxa = new File("epithet_genus_con_punto.csv");
-					String[] temp = { annotation };
+					String annotationElements []= annotation.split(" ");
+					
+					String[] temp = { annotationElements [0]+" "+annotationElements [1]};
+					
 					boolean found[] = est.searchParallel(temp, checkTaxa, threads);
 					if (found[0] == true) {
 						checkedallAnnotationsequences.add(annotation);
