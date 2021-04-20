@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -30,6 +31,12 @@ public class ASFAResearchObject {
 
 	// Stringa che indica la path e il nome del file di testo in analisi
 	String filename;
+
+	// Oggetto necessario per avviare la search
+	EfficientSearchInText est;
+
+	// Numero di threads
+	int threads;
 
 	LinkedHashMap<String, String> annotationstext = new LinkedHashMap<String, String>();
 	LinkedHashMap<String, String> annotationsjson = new LinkedHashMap<String, String>();
@@ -71,11 +78,11 @@ public class ASFAResearchObject {
 	// variabile "matches"
 	public void get() throws Exception {
 
-		EfficientSearchInText est = new EfficientSearchInText();
+		est = new EfficientSearchInText();
 		File referenceTaxa = new File("epithet_genus.csv");
-		int nthreads = 8;
 		System.out.println("Searching");
-		boolean found[] = est.searchParallel(words, referenceTaxa, nthreads);
+		threads = 8;
+		boolean found[] = est.searchParallel(words, referenceTaxa, threads);
 		matches = found;
 		// Versione con doppia search
 //		boolean genusfound[] = est.searchParallel(words, genus, nthreads);
@@ -94,7 +101,7 @@ public class ASFAResearchObject {
 		System.out.println("Searching end");
 	}
 
-	public void enrich(String annotationName) throws IOException {
+	public void enrich(String annotationName) throws Exception {
 		System.out.println("Enriching...");
 		category = annotationName;
 		HashSet<String> allAnnotationsequences = new HashSet<>();
@@ -127,37 +134,75 @@ public class ASFAResearchObject {
 					// match ha dato valore positivo
 					annotationseq = (words[i]);
 				}
-			}else {
+			} else {
 				if (annotationseq.length() > 0) {
 					allAnnotationsequences.add(annotationseq);
-					annotationseq="";
+					annotationseq = "";
 				}
 			}
 		}
-		
+
 		if (annotationseq.length() > 0) {
 			allAnnotationsequences.add(annotationseq);
-			annotationseq="";
+			annotationseq = "";
 		}
-		
-		//NOTA: inserire qui il sistema a regole sui genus e species:
-		/*
-		1 - se l'annotazione contiene 
-		un SOLO genus e ALMENO UN epithet 
-			oppure 
-		una lettera puntata e ALMENO UN epithet allora 
-			-> se non c'è nella lista dei "genus epithet" allora scartiamo
-			-> altrimenti accettiamo
-		2 - se contiene 2 genus -> scartiamo
-		3 - se contiene 0 genus -> scartiamo
-		4 - se contiene 1 genus ma è una parola inglese (nella lista common english words) -> scartiamo
 
-		Generazione del dataset "genus epithet":
-		per ogni entry di GBIF, aggiungere
-			G. epithet
-			Genus epithet
-		*/
-		
+		// NOTA: inserire qui il sistema a regole sui genus e species:
+		/*
+		 * 1 - se l'annotazione contiene un SOLO genus e ALMENO UN epithet oppure una
+		 * lettera puntata e ALMENO UN epithet allora -> se non c'è nella lista dei
+		 * "genus epithet" allora scartiamo -> altrimenti accettiamo 2 - se contiene 2
+		 * genus -> scartiamo 3 - se contiene 0 genus -> scartiamo 4 - se contiene 1
+		 * genus ma è una parola inglese (nella lista common english words) -> scartiamo
+		 * 
+		 * Generazione del dataset "genus epithet": per ogni entry di GBIF, aggiungere
+		 * G. epithet Genus epithet
+		 */
+		System.out.println("Annotaioni trovate inizialmente");
+		for (String strCurrentNumber : allAnnotationsequences) {
+			System.out.println(strCurrentNumber);
+		}
+
+		HashSet<String> checkedallAnnotationsequences = new HashSet<>();
+
+		for (String annotation : allAnnotationsequences) {
+//    		1 - se l'annotazione contiene un SOLO genus e ALMENO UN epithet
+			if (annotation.contains(" ")) {
+				if (Character.isUpperCase(annotation.charAt(0))
+						&& Character.isLowerCase(annotation.split(" ")[1].charAt(0))) {
+//    				-> se non c'è nella lista dei "genus epithet" allora scartiamo
+//    				-> altrimenti accettiamo
+					File checkTaxa = new File("epithet_genus_con_punto.csv");
+					String[] temp = { annotation };
+					boolean found[] = est.searchParallel(temp, checkTaxa, threads);
+					if (found[0] == true) {
+						checkedallAnnotationsequences.add(annotation);
+					}
+				}
+//        		2 - se contiene 2 genus -> scartiamo
+				if (Character.isUpperCase(annotation.charAt(0))
+						&& Character.isUpperCase(annotation.split(" ")[1].charAt(0))) {
+					continue;
+				}
+			}
+//    		3 - se contiene 0 genus -> scartiamo
+			if (Character.isLowerCase(annotation.charAt(0))) {
+				continue;
+			}
+//    		4 - se contiene 1 genus ma è una parola inglese (nella lista common english words) -> scartiamo
+			if (annotation.contains(" ") == false) {
+				if (Character.isUpperCase(annotation.charAt(0))) {
+					File checkTaxa = new File("MostCommonEnglishWords.csv");
+					// Trasformo la stringa in lowercase perché il file "MostCommonEnglishWords" non
+					// ha lettere maiuscole
+					String[] temp = { annotation.toLowerCase() };
+					boolean found[] = est.searchParallel(temp, checkTaxa, 8);
+					if (found[0] == false) {
+						checkedallAnnotationsequences.add(annotation);
+					}
+				}
+			}
+		}
 		// A questo punto leggo il file originale in modo da stamparlo nuovamente con le
 		// annotazioni
 		String testooriginale = new String(Files.readAllBytes(new File(filename).toPath()));
@@ -166,40 +211,33 @@ public class ASFAResearchObject {
 		testooriginale = testooriginale.replace("\n", " ").replace("\r", "");
 		// Rimuovo le possibili parentesi quadre presenti nel testo di input
 		testooriginale = testooriginale.replace("[", " ").replace("]", " ");
-		for (String annot : allAnnotationsequences) {
+		for (String annot : checkedallAnnotationsequences) {
 			if (annot.contains(" ")) {
-				testooriginale = testooriginale.replace(annot, "[" + annot + "]"); 
+				testooriginale = testooriginale.replace(annot, "[" + annot + "]");
 			}
 		}
 
-		
 		// Identificazione indici parentesi di annotazione da inserire nel JSON
 		List<Integer> indices = new ArrayList<>();
 		String primaparentesi = "[";
 		String secondaparentesi = "]";
 		int counter_one = 0;
-		int index_primaparentesi= testooriginale.indexOf(primaparentesi);
+		int index_primaparentesi = testooriginale.indexOf(primaparentesi);
+		int counter_two = 0;
+		int index_secondaparentesi = testooriginale.indexOf(secondaparentesi);
 		while (index_primaparentesi >= 0) {
 			indices.add(index_primaparentesi - counter_one);
-			counter_one = counter_one + 2;
-//		    System.out.println(index_primaparentesi);
-		    index_primaparentesi = testooriginale.indexOf(primaparentesi, index_primaparentesi + 1);
-		}
-		int counter_two = 0;
-		int index_secondaparentesi= testooriginale.indexOf(secondaparentesi);
-		while (index_secondaparentesi >= 0) {
 			indices.add(index_secondaparentesi - counter_two - 1);
 			counter_two = counter_two + 2;
-//		    System.out.println(index_secondaparentesi);
-		    index_secondaparentesi = testooriginale.indexOf(secondaparentesi, index_secondaparentesi + 1);
+			counter_one = counter_one + 2;
+			index_primaparentesi = testooriginale.indexOf(primaparentesi, index_primaparentesi + 1);
+			index_secondaparentesi = testooriginale.indexOf(secondaparentesi, index_secondaparentesi + 1);
 		}
-		//FUTURE MOD: we have got [Latimeria chalumnae], [L. menadoensis] in Mozambique
-		//FUTURE MOD: we have got [Canis lupus marinus] in Mozambique
 		Collections.sort(indices);
 		for (int i = 0; i < indices.size(); i = i + 2) {
 			jsonIndex.append("{\"indices\": [" + indices.get(i) + "," + indices.get(i + 1) + "]},");
 		}
-		
+
 		// Inserimento delle annotazioni nei rispettivi oggetti
 		annotationstext.put(annotationName, testooriginale);
 		annotationsjson.put(annotationName, jsonIndex.toString());
@@ -231,4 +269,5 @@ public class ASFAResearchObject {
 		writer.close();
 
 	}
+
 }
