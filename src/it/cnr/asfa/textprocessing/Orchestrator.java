@@ -15,19 +15,17 @@ public class Orchestrator {
 		String language = null;
 		File inputText = null; //NOTE: INPUT MUST BE UTF-8
 
-		if (args.length < 3) {
+		if (args.length < 1) {
 			System.out.println("Using sample input");
-			args= new String[3];
-			args[0] = "";
-			args[1] = "en";
-			args[2] = "sampleTextTaxa.txt";
+			args= new String[1];
+			args[0] = "sampleTextTaxa.txt";
 		}
 		
 		
 		ASFAResearchObject researchObject = new ASFAResearchObject();
 		
 
-		researchObject.capture(args[2]);
+		researchObject.capture(args[0]);
 		researchObject.get();
 		researchObject.enrich("TAXON");
 		researchObject.materializeText();
