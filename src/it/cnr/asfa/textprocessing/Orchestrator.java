@@ -4,7 +4,8 @@ import java.io.File;
 import java.util.List;
 
 public class Orchestrator {
-
+//java -cp asfaspeciesner.jar it.cnr.asfa.textprocessing.Orchestrator sampleTextTaxa.txt
+	
 	@SuppressWarnings("null")
 	public static void main(String[] args) throws Exception {
 		System.out.println("ASFA Text Miner has started...");
