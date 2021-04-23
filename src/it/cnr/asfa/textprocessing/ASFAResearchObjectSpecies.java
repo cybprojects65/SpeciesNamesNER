@@ -261,7 +261,7 @@ public class ASFAResearchObjectSpecies {
 
 	// creo il file di output in formato TXT e stampo le annotazioni ottenute
 	public void materializeText() throws IOException {
-		File file = new File("output_species.txt");
+		File file = new File("output.txt");
 		PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), charset));
 
 		writer.append("##" + category.toUpperCase() + "##" + "\n");
@@ -273,13 +273,19 @@ public class ASFAResearchObjectSpecies {
 
 	public void materializeJSON() throws IOException {
 
-		File file = new File("output_species.json");
+		File file = new File("output.json");
 		PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), charset));
 		writer.append("{ \"text\": \"");
 		String testooriginale = new String(Files.readAllBytes(new File(filename).toPath()));
 		writer.append(testooriginale.replace("\n", " ").replace("\r", ""));
-		writer.append("\", \"entities\": [");
-		writer.append(annotationsjson.get(category) + "]}");
+		//{"Taxon":[ {"indices":[393,399]},{"indices":[400,409]},{"indices":[577,586]},{"indices":[694,701]},{"indices":[745,752]},{"indices":[773,783]} ]
+		writer.append("\", \"entities\": "
+				+ "{ "
+				+ "\""+category+"\": [");
+		String jsonannotation = (""+annotationsjson.get(category)).trim();
+		if (jsonannotation.endsWith(","))
+			jsonannotation = jsonannotation.substring(0,jsonannotation.length()-1);
+		writer.append(jsonannotation+ "]} }");
 		writer.close();
 
 	}

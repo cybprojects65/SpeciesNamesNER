@@ -21,32 +21,9 @@ import java.util.List;
 
 import it.cnr.asfa.textprocessing.utils.EfficientSearchInText;
 
-public class ASFAResearchObjectThesaurus {
+public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 
-	// Array dove viene estratto il testo parla per parola per fare i match
-	String[] words;
-
-	// Lista di corrispondenze riscontrate nel testo espresse in booleani
-	boolean[] matches;
-
-	// Stringa che indica la cateogoria delle annotazioni
-	String category;
-
-	// Stringa che indica la path e il nome del file di testo in analisi
-	String filename;
-
-	// Oggetto necessario per avviare la search
-	EfficientSearchInText est;
-
-	// Numero di threads
-	int threads;
-
-	// Codifica del file
-	String charset = "UTF-8";
-
-	LinkedHashMap<String, String> annotationstext = new LinkedHashMap<String, String>();
-	LinkedHashMap<String, String> annotationsjson = new LinkedHashMap<String, String>();
-
+	
 	public void capture(String fileName) throws FileNotFoundException {
 		// Salvo nella variabile "filename" la path e nome del file di testo in analisi
 		this.filename = fileName;
@@ -172,29 +149,5 @@ public class ASFAResearchObjectThesaurus {
 		annotationsjson.put(annotationName, jsonIndex.toString());
 	}
 
-	// creo il file di output in formato TXT e stampo le annotazioni ottenute
-	public void materializeText() throws IOException {
-		File file = new File("output_thesaurus.txt");
-		PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), charset));
-
-		writer.append("##" + category.toUpperCase() + "##" + "\n");
-		writer.print(annotationstext.get(category));
-		writer.close();
-	}
-
-	// creo il file di output in formato JSON e stampo le annotazioni ottenute
-
-	public void materializeJSON() throws IOException {
-
-		File file = new File("output_thesaurus.json");
-		PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), charset));
-		writer.append("{ \"text\": \"");
-		String testooriginale = new String(Files.readAllBytes(new File(filename).toPath()));
-		writer.append(testooriginale.replace("\n", " ").replace("\r", ""));
-		writer.append("\", \"entities\": [");
-		writer.append(annotationsjson.get(category) + "]}");
-		writer.close();
-
-	}
 
 }

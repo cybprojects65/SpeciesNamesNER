@@ -3,7 +3,7 @@ package it.cnr.asfa.textprocessing;
 import java.io.File;
 import java.util.List;
 
-public class Orchestrator {
+public class OrchestratorSpecies {
 //java -cp asfaspeciesner.jar it.cnr.asfa.textprocessing.Orchestrator sampleTextTaxa.txt
 
 	@SuppressWarnings("null")
@@ -18,27 +18,19 @@ public class Orchestrator {
 		if (args.length < 1) {
 			System.out.println("Using sample input");
 			args = new String[1];
-			args[0] = "textThesaurus.txt";
+			args[0] = "sampleTextTaxa.txt";
 		}
 
 		ASFAResearchObjectSpecies researchObjectSpecies = new ASFAResearchObjectSpecies();
-		ASFAResearchObjectThesaurus researchObjectThesaurus = new ASFAResearchObjectThesaurus();
 
 //		Operazioni per Species
 		researchObjectSpecies.capture(args[0]);
 		researchObjectSpecies.get();
-		researchObjectSpecies.enrich("TAXON");
+		researchObjectSpecies.enrich("Taxon");
 		researchObjectSpecies.materializeText();
 		researchObjectSpecies.materializeJSON();
 		System.out.println("Operazioni species completate");
 
-//		Operazioni per Thesaurus
-		researchObjectThesaurus.capture(args[0]);
-		researchObjectThesaurus.get();
-		researchObjectThesaurus.enrich("THESAURUS");
-		researchObjectThesaurus.materializeText();
-		researchObjectThesaurus.materializeJSON();
-		System.out.println("Operazioni thesaurus completate");
 
 		System.out.println("Done");
 
