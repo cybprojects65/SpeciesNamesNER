@@ -18,24 +18,15 @@ public class OrchestratorThesaurus {
 		if (args.length < 1) {
 			System.out.println("Using sample input");
 			args = new String[1];
-			args[0] = "textThesaurus.txt";
+			args[0] = "sampleTextThesaurus.txt";
 		}
 
-		ASFAResearchObjectSpecies researchObjectSpecies = new ASFAResearchObjectSpecies();
 		ASFAResearchObjectThesaurus researchObjectThesaurus = new ASFAResearchObjectThesaurus();
 
-//		Operazioni per Species
-		researchObjectSpecies.capture(args[0]);
-		researchObjectSpecies.get();
-		researchObjectSpecies.enrich("Taxon");
-		researchObjectSpecies.materializeText();
-		researchObjectSpecies.materializeJSON();
-		System.out.println("Operazioni species completate");
-
-//		Operazioni per Thesaurus
+		//Operazioni per Thesaurus
 		researchObjectThesaurus.capture(args[0]);
 		researchObjectThesaurus.get();
-		researchObjectThesaurus.enrich("THESAURUS");
+		researchObjectThesaurus.enrich("Asfa");
 		researchObjectThesaurus.materializeText();
 		researchObjectThesaurus.materializeJSON();
 		System.out.println("Operazioni thesaurus completate");
