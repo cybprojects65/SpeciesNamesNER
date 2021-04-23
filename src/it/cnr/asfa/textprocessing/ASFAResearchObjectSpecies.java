@@ -143,12 +143,12 @@ public class ASFAResearchObjectSpecies {
 		// all'inerno di un array
 		BufferedReader in = new BufferedReader(new FileReader("MostCommonEnglishWords.csv"));
 		String str;
-		List<String> list = new ArrayList<String>();
+		List<String> MostCommonEnglishWords = new ArrayList<String>();
 		while ((str = in.readLine()) != null) {
-			list.add(str);
+			MostCommonEnglishWords.add(str);
 		}
-		String[] MostCommonEnglishWords = list.toArray(new String[0]);
-
+		in.close();
+		
 		// Array di appoggio necessario per eseguire i confronti successivi
 		ArrayList<String> ArrayListGenusEpithet = new ArrayList<String>();
 
@@ -178,9 +178,9 @@ public class ASFAResearchObjectSpecies {
 				continue;
 			}
 //    		4 - se contiene 1 genus ma è una parola inglese (nella lista common english words) -> scartiamo
-			if (annotation.contains(" ") == false) {
+			if (!annotation.contains(" ")) {
 				if (Character.isUpperCase(annotation.charAt(0))) {
-					if (!(Arrays.asList(MostCommonEnglishWords).contains(annotation.toLowerCase()))) {
+					if (!(MostCommonEnglishWords.contains(annotation.toLowerCase()))) {
 						checkedallAnnotationsequences.add(annotation);
 					}
 				}
