@@ -40,6 +40,7 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 					wordsArrayList.add(token[i].toLowerCase()); // genus should be upper case
 				}
 			}
+			reader.close();
 
 		} catch (IOException e) {
 			e.printStackTrace();

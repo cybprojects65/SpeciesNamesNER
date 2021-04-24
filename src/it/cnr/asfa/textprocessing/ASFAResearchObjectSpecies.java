@@ -65,6 +65,7 @@ public class ASFAResearchObjectSpecies {
 					wordsArrayList.add(token[i]); // genus should be upper case
 				}
 			}
+			reader.close();
 
 		} catch (IOException e) {
 			e.printStackTrace();
