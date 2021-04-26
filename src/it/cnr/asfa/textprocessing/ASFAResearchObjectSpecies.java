@@ -149,7 +149,7 @@ public class ASFAResearchObjectSpecies {
 			MostCommonEnglishWords.add(str);
 		}
 		in.close();
-		
+
 		// Array di appoggio necessario per eseguire i confronti successivi
 		ArrayList<String> ArrayListGenusEpithet = new ArrayList<String>();
 
@@ -233,7 +233,6 @@ public class ASFAResearchObjectSpecies {
 				testooriginale = testooriginale.replace(annot, "[" + annot + "]");
 			}
 		}
-
 		// Identificazione indici parentesi di annotazione da inserire nel JSON
 		List<Integer> indices = new ArrayList<>();
 		String primaparentesi = "[";
@@ -279,14 +278,14 @@ public class ASFAResearchObjectSpecies {
 		writer.append("{ \"text\": \"");
 		String testooriginale = new String(Files.readAllBytes(new File(filename).toPath()));
 		writer.append(testooriginale.replace("\n", " ").replace("\r", ""));
-		//{"Taxon":[ {"indices":[393,399]},{"indices":[400,409]},{"indices":[577,586]},{"indices":[694,701]},{"indices":[745,752]},{"indices":[773,783]} ]
-		writer.append("\", \"entities\": "
-				+ "{ "
-				+ "\""+category+"\": [");
-		String jsonannotation = (""+annotationsjson.get(category)).trim();
+		// {"Taxon":[
+		// {"indices":[393,399]},{"indices":[400,409]},{"indices":[577,586]},{"indices":[694,701]},{"indices":[745,752]},{"indices":[773,783]}
+		// ]
+		writer.append("\", \"entities\": " + "{ " + "\"" + category + "\": [");
+		String jsonannotation = ("" + annotationsjson.get(category)).trim();
 		if (jsonannotation.endsWith(","))
-			jsonannotation = jsonannotation.substring(0,jsonannotation.length()-1);
-		writer.append(jsonannotation+ "]} }");
+			jsonannotation = jsonannotation.substring(0, jsonannotation.length() - 1);
+		writer.append(jsonannotation + "]} }");
 		writer.close();
 
 	}

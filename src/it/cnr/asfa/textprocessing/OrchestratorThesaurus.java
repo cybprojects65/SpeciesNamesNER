@@ -18,7 +18,7 @@ public class OrchestratorThesaurus {
 		if (args.length < 1) {
 			System.out.println("Using sample input");
 			args = new String[1];
-			args[0] = "sampleTextThesaurus.txt";
+			args[0] = "sampleTextThesaurus.txt";	
 		}
 
 		ASFAResearchObjectThesaurus researchObjectThesaurus = new ASFAResearchObjectThesaurus();
