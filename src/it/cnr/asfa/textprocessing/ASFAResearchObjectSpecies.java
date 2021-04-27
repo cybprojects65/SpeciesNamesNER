@@ -146,7 +146,7 @@ public class ASFAResearchObjectSpecies {
 		String str;
 		List<String> MostCommonEnglishWords = new ArrayList<String>();
 		while ((str = in.readLine()) != null) {
-			MostCommonEnglishWords.add(str);
+			MostCommonEnglishWords.add(str.toLowerCase());
 		}
 		in.close();
 
@@ -229,9 +229,9 @@ public class ASFAResearchObjectSpecies {
 		// Rimuovo le possibili parentesi quadre presenti nel testo di input
 		testooriginale = testooriginale.replace("[", " ").replace("]", " ");
 		for (String annot : checkedallAnnotationsequences) {
-			if (annot.contains(" ")) {
+			//if (annot.contains(" ")) {
 				testooriginale = testooriginale.replace(annot, "[" + annot + "]");
-			}
+			//}
 		}
 		// Identificazione indici parentesi di annotazione da inserire nel JSON
 		List<Integer> indices = new ArrayList<>();
