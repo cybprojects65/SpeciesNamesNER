@@ -2,6 +2,8 @@ package it.cnr.asfa.textprocessing;
 
 import java.io.File;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class OrchestratorThesaurus {
 //java -cp asfaspeciesner.jar it.cnr.asfa.textprocessing.Orchestrator sampleTextTaxa.txt
@@ -10,6 +12,15 @@ public class OrchestratorThesaurus {
 	public static void main(String[] args) throws Exception {
 		System.out.println("ASFA Text Miner has started...");
 
+		/*
+		String annotLc = "a pond compilation";
+		 Pattern p = Pattern.compile("(( |^)on( |$))");
+		 Matcher m = p.matcher(annotLc);
+		 boolean b = m.find();
+		 System.out.println(b);
+		 System.exit(0);
+		 */
+		
 		String annotationsParsed[] = null;
 		List<String> annotations = null;
 		String language = null;

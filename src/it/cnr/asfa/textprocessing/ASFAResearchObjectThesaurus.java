@@ -4,40 +4,39 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import it.cnr.asfa.textprocessing.utils.EfficientSearchInText;
 
-public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
+public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 
-	
 	public void capture(String fileName) throws FileNotFoundException {
-		// Salvo nella variabile "filename" la path e nome del file di testo in analisi
+		// Salvo nella variabile "filename" la path e nome del file di testo in
+		// analisi
 		this.filename = fileName;
 		File fileDir = new File(filename);
 		ArrayList<String> wordsArrayList = new ArrayList<String>();
 
-		try (FileInputStream fis = new FileInputStream(fileDir);
-				InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-				BufferedReader reader = new BufferedReader(isr)) {
+		try (FileInputStream fis = new FileInputStream(fileDir); InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8); BufferedReader reader = new BufferedReader(isr)) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				String[] token = line.replaceAll("[^a-zA-Z ]", " ").split("\\s+");
 				for (int i = 0; i < token.length; i++) {
-					wordsArrayList.add(token[i].toLowerCase().trim()); // genus should be upper case
+					wordsArrayList.add(token[i].toLowerCase().trim()); // genus
+																		// should
+																		// be
+																		// upper
+																		// case
 				}
 			}
 			reader.close();
@@ -56,7 +55,7 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 	public void get() throws Exception {
 
 		est = new EfficientSearchInText();
-		File referenceTaxa = new File("thesaurus.csv");
+		File referenceTaxa = new File("thesaurus_monogram.csv");
 		System.out.println("Searching");
 		threads = 8;
 		boolean found[] = est.searchParallel(words, referenceTaxa, threads);
@@ -68,32 +67,51 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 		System.out.println("Enriching...");
 		category = annotationName;
 		HashSet<String> allAnnotationsequences = new HashSet<>();
+
+		BufferedReader in = new BufferedReader(new FileReader("thesaurus_sentences.csv"));
+		String str;
+		HashSet<String> referenceThesaurus = new HashSet<String>();
+		while ((str = in.readLine()) != null) {
+			referenceThesaurus.add(str.toLowerCase().trim());
+		}
+		in.close();
+
 		String annotationseq = new String();
 		for (int i = 0; i < words.length; i++) {
 			if (matches[i] == true) {
-				// Questa condizione serva per controllare che la tassonomia sia seguita da
+				// Questa condizione serva per controllare che la tassonomia sia
+				// seguita da
 				// un'abbreviazione
-				// della parola precedente come nel caso ad esempio di "L. chalumnae". Viene
-				// controllata la lunghezza della parola precedente che deve essere di
-				// 1 ovvero 0+1 e quandi accorpata all'interno del vettore contenente le parole
+				// della parola precedente come nel caso ad esempio di "L.
+				// chalumnae". Viene
+				// controllata la lunghezza della parola precedente che deve
+				// essere di
+				// 1 ovvero 0+1 e quandi accorpata all'interno del vettore
+				// contenente le parole
 				if (i > 0 && words[i - 1].length() == 1) {
 					words[i] = words[i - 1] + ". " + words[i];
 				}
-				// se il match attuale è positivo e anche quello precedente allora le due parole
+				// se il match attuale è positivo e anche quello precedente
+				// allora le due parole
 				// vengono accorpate all'interno di una stringa
-				// temporanea chiamata "annotationseq" che viene resettata ad ogni passo del for
+				// temporanea chiamata "annotationseq" che viene resettata ad
+				// ogni passo del for
 				if (i > 0 && matches[i - 1] == true) {
 					annotationseq = annotationseq + " " + words[i];
 				} else {
-					// a questo punto se questa stringa esiste e quindi se il match è stato fatto
+					// a questo punto se questa stringa esiste e quindi se il
+					// match è stato fatto
 					// allora questa stringa "annotationseq" viene aggiunta
-					// ad un vetore contenente i match elaborati chiamato ""annotationseq""
+					// ad un vetore contenente i match elaborati chiamato
+					// ""annotationseq""
 					if (annotationseq.length() > 0) {
 						allAnnotationsequences.add(annotationseq);
 					}
-					// se invece questa stringa è vuota allora se siamo qui cmq il match è positivo
+					// se invece questa stringa è vuota allora se siamo qui cmq
+					// il match è positivo
 					// e quindi si deve agggiungere la singola parola
-					// alla sringa temporanea che così viene resettata alla parola con la quale il
+					// alla sringa temporanea che così viene resettata alla
+					// parola con la quale il
 					// match ha dato valore positivo
 					annotationseq = (words[i]);
 				}
@@ -110,7 +128,8 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 			annotationseq = "";
 		}
 
-		// A questo punto leggo il file originale in modo da stamparlo nuovamente con le
+		// A questo punto leggo il file originale in modo da stamparlo
+		// nuovamente con le
 		// annotazioni
 		String testooriginale = new String(Files.readAllBytes(new File(filename).toPath()));
 		StringBuilder jsonIndex = new StringBuilder();
@@ -119,9 +138,31 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 		// Rimuovo le possibili parentesi quadre presenti nel testo di input
 		testooriginale = testooriginale.replace("[", " ").replace("]", " ");
 		for (String annot : allAnnotationsequences) {
-			if (annot.contains(" ")) 
-			{
-				testooriginale = testooriginale.replace(annot, "[" + annot + "]");
+
+			List<String> subannotations = new ArrayList<>();
+			String annotLc = annot.toLowerCase();
+
+			for (String thesaurus : referenceThesaurus) {
+				if (thesaurus.length() > 2 && thesaurus.contains(" ")) {
+					Pattern p = Pattern.compile("(( |^)" + thesaurus + "( |$))");
+					Matcher m = p.matcher(annotLc);
+					boolean b = m.find();
+
+					// if (annotLc.contains(thesaurus)) {
+					if (b) {
+						subannotations.add(thesaurus);
+					}
+				}
+			}
+
+			if (subannotations.size() > 0) {
+				//System.out.println("Annotation " + annot + " contains thesaurus words " + subannotations);
+				for (String sub : subannotations) {
+					String toSub = "[" + sub + "]";
+					if (!testooriginale.contains(toSub)) {
+						testooriginale = testooriginale.replace(sub, "[" + sub + "]");
+					}
+				}
 			}
 		}
 
@@ -150,6 +191,5 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 		annotationstext.put(annotationName, testooriginale);
 		annotationsjson.put(annotationName, jsonIndex.toString());
 	}
-
 
 }
