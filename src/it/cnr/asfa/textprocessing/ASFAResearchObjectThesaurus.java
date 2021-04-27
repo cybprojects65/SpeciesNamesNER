@@ -37,7 +37,7 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 			while ((line = reader.readLine()) != null) {
 				String[] token = line.replaceAll("[^a-zA-Z ]", " ").split("\\s+");
 				for (int i = 0; i < token.length; i++) {
-					wordsArrayList.add(token[i].toLowerCase()); // genus should be upper case
+					wordsArrayList.add(token[i].toLowerCase().trim()); // genus should be upper case
 				}
 			}
 			reader.close();
