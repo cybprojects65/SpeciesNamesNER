@@ -233,6 +233,8 @@ public class ASFAResearchObjectSpecies {
 				testooriginale = testooriginale.replace(annot, "[" + annot + "]");
 			//}
 		}
+		
+		testooriginale = ASFAResearchObjectSpecies.cleanupNested(testooriginale);
 		// Identificazione indici parentesi di annotazione da inserire nel JSON
 		List<Integer> indices = new ArrayList<>();
 		String primaparentesi = "[";
@@ -270,7 +272,50 @@ public class ASFAResearchObjectSpecies {
 	}
 
 	// creo il file di output in formato JSON e stampo le annotazioni ottenute
-
+	
+	public static String cleanupNested(String annotatedtext) {
+		
+		int idx = annotatedtext.indexOf("[[");
+		if (idx<0)
+			return annotatedtext;
+		else {
+			
+			int l = annotatedtext.length();
+			char[] ch = new char[l];
+			for (int i = 0; i < l; i++) {
+	            ch[i] = annotatedtext.charAt(i);
+	        }
+	        
+			int counter = 0;
+			for (int c=idx;c<l;c++) {
+				if (ch[c]=='[') {
+					counter++;
+					if (counter>1)
+						ch[c] = 0;
+				}
+			}
+			
+			for (int c=idx;c<l;c++) {
+				if (ch[c]==']') {
+					counter--;
+					if (counter>0)
+						ch[c] = 0;
+				}
+			}
+			
+			StringBuffer sb = new StringBuffer();
+			
+			for (int i = 0; i < l; i++) {
+				if (ch[i]>0)
+					sb.append(ch[i]);
+	        }
+			
+			return sb.toString();
+		}
+			
+		
+	} 
+	
 	public void materializeJSON() throws IOException {
 
 		File file = new File("output.json");

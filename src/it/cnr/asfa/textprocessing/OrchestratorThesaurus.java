@@ -20,6 +20,11 @@ public class OrchestratorThesaurus {
 		 System.out.println(b);
 		 System.exit(0);
 		 */
+		/*
+		String test = " through more [[[chemical] analysis] methods] efficient use of resources. ";
+		System.out.println(ASFAResearchObjectSpecies.cleanupNested(test));
+		System.exit(0);
+		*/
 		
 		String annotationsParsed[] = null;
 		List<String> annotations = null;

@@ -1,18 +1,1 @@
-The order Coelacanthiformes, once thought extinct, is much studied mainly because it contains species
-that share characteristics with lungfishes and tetrapods. Only a few years ago living specimens were
-discovered to science, and observations are so rare that the species are considered to be critically endangered.
-Observations include Latimeria chalumnae in deep waters of the coast of south eastern Africa
-while Latimeria menadoensis is known from similar habitats in Indonesian waters. Because of the interest
-around these enigmatic species, Ecological Niche Modelling techniques have been applied to estimate
-their distribution. The underlying assumption is that the environmental characteristics of the observation
-points are representative for the species. In this article we evaluate the difference in the output between
-the niche distributions produced by two expert systems and by two models based on Artificial Neural
-Networks. We evaluate the predictive behaviour of such models by focusing on L. chalumnae, as more
-observations are available for this species with respect to L. menadoensis. Finally, we assess the reliability
-of the maps by numerically evaluating the representativeness of the environmental characteristics in
-the observation locations, with respect to an area where the models show significant differences. This
-approach is different from previous ones because one of the expert systems is used to infer pseudoabsence
-points, that are successively employed to feed a Neural Network. One of the models based on
-this Neural Network is used to estimate the potential distribution and to produce a more extended map.
-The method promises to be applicable to other species with few observations, and allows to exploit the
-power of presence\absence based techniques. We have got Canis lupus familiaris in Mozambique.
+Tilapia is one of the most popular aquaculture species and is farmed in more than 120 countries and territories. A bioeconomic model on tilapia pond culture has been developed by the Food and Agriculture Organization of the United Nations (FAO) based on experiences in China, the largest tilapia farming country. The results of the model indicate that the technical and economic performance of tilapia farming can be significantly improved by optimal selection of stocking timing, fingerling size, stocking density, growing period (or crop length), harvest timing and harvest size according to technical, economic and climate factors. Bioeconomic modelling can facilitate knowledge-based innovations for increasing technical and economic benefits through more efficient use of resources. Its potential has yet to be adequately appreciated or utilized. This paper represents an effort to improve the situation.

@@ -166,6 +166,8 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 			}
 		}
 
+		testooriginale = ASFAResearchObjectSpecies.cleanupNested(testooriginale);
+		
 		// Identificazione indici parentesi di annotazione da inserire nel JSON
 		List<Integer> indices = new ArrayList<>();
 		String primaparentesi = "[";
