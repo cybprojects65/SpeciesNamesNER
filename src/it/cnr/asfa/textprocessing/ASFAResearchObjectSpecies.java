@@ -60,9 +60,9 @@ public class ASFAResearchObjectSpecies {
 				BufferedReader reader = new BufferedReader(isr)) {
 			String line;
 			while ((line = reader.readLine()) != null) {
-				String[] token = line.replaceAll("[^a-zA-Z ]", "").split("\\s+");
+				String[] token = line.replaceAll("[^a-zA-Z ]", " ").split("\\s+");
 				for (int i = 0; i < token.length; i++) {
-					wordsArrayList.add(token[i]); // genus should be upper case
+					wordsArrayList.add(token[i].trim()); // genus should be upper case
 				}
 			}
 			reader.close();

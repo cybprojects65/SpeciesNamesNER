@@ -35,7 +35,7 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 				BufferedReader reader = new BufferedReader(isr)) {
 			String line;
 			while ((line = reader.readLine()) != null) {
-				String[] token = line.replaceAll("[^a-zA-Z ]", "").split("\\s+");
+				String[] token = line.replaceAll("[^a-zA-Z ]", " ").split("\\s+");
 				for (int i = 0; i < token.length; i++) {
 					wordsArrayList.add(token[i].toLowerCase()); // genus should be upper case
 				}
@@ -119,7 +119,8 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies{
 		// Rimuovo le possibili parentesi quadre presenti nel testo di input
 		testooriginale = testooriginale.replace("[", " ").replace("]", " ");
 		for (String annot : allAnnotationsequences) {
-			if (annot.contains(" ")) {
+			if (annot.contains(" ")) 
+			{
 				testooriginale = testooriginale.replace(annot, "[" + annot + "]");
 			}
 		}
