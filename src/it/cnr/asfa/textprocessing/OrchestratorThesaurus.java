@@ -13,19 +13,18 @@ public class OrchestratorThesaurus {
 		System.out.println("ASFA Text Miner has started...");
 
 		/*
-		String annotLc = "a pond compilation";
-		 Pattern p = Pattern.compile("(( |^)on( |$))");
-		 Matcher m = p.matcher(annotLc);
-		 boolean b = m.find();
-		 System.out.println(b);
-		 System.exit(0);
+		 * String annotLc = "a pond compilation"; Pattern p =
+		 * Pattern.compile("(( |^)on( |$))"); Matcher m = p.matcher(annotLc); boolean b
+		 * = m.find(); System.out.println(b); System.exit(0);
 		 */
 		/*
-		String test = " through more [[[chemical] analysis] methods] efficient use of resources. ";
-		System.out.println(ASFAResearchObjectSpecies.cleanupNested(test));
-		System.exit(0);
-		*/
-		
+		 * String test =
+		 * " through more [[[chemical] analysis] methods] efficient use of resources. ";
+		 * System.out.println(ASFAResearchObjectSpecies.cleanupNested(test));
+		 * System.exit(0);
+		 */
+		long startTime = System.currentTimeMillis();
+
 		String annotationsParsed[] = null;
 		List<String> annotations = null;
 		String language = null;
@@ -34,12 +33,13 @@ public class OrchestratorThesaurus {
 		if (args.length < 1) {
 			System.out.println("Using sample input");
 			args = new String[1];
-			args[0] = "sampleTextThesaurus.txt";	
+			//args[0] = "sampleTextThesaurus.txt";
+			args[0] = "sampleTextThesaurus10000.txt";
 		}
 
 		ASFAResearchObjectThesaurus researchObjectThesaurus = new ASFAResearchObjectThesaurus();
 
-		//Operazioni per Thesaurus
+		// Operazioni per Thesaurus
 		researchObjectThesaurus.capture(args[0]);
 		researchObjectThesaurus.get();
 		researchObjectThesaurus.enrich("Asfa");
@@ -48,6 +48,12 @@ public class OrchestratorThesaurus {
 		System.out.println("Operazioni thesaurus completate");
 
 		System.out.println("Done");
+
+		long stopTime = System.currentTimeMillis();
+		long elapsedTime = stopTime - startTime;
+
+		System.out.println("Elapsed time");
+		System.out.println(elapsedTime);
 
 	}
 

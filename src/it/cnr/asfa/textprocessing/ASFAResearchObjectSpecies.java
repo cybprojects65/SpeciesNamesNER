@@ -97,7 +97,7 @@ public class ASFAResearchObjectSpecies {
 		String annotationseq = new String();
 		for (int i = 0; i < words.length; i++) {
 			if (matches[i] == true) {
-				// Questa condizione serva per controllare che la tassonomia sia seguita da
+				// Questa condizione serve per controllare che la tassonomia sia seguita da
 				// un'abbreviazione
 				// della parola precedente come nel caso ad esempio di "L. chalumnae". Viene
 				// controllata la lunghezza della parola precedente che deve essere di
@@ -229,11 +229,10 @@ public class ASFAResearchObjectSpecies {
 		// Rimuovo le possibili parentesi quadre presenti nel testo di input
 		testooriginale = testooriginale.replace("[", " ").replace("]", " ");
 		for (String annot : checkedallAnnotationsequences) {
-			//if (annot.contains(" ")) {
-				testooriginale = testooriginale.replace(annot, "[" + annot + "]");
-			//}
+			// if (annot.contains(" ")) {
+			testooriginale = testooriginale.replace(annot, "[" + annot + "]");
+			// }
 		}
-		
 		testooriginale = ASFAResearchObjectSpecies.cleanupNested(testooriginale);
 		// Identificazione indici parentesi di annotazione da inserire nel JSON
 		List<Integer> indices = new ArrayList<>();
@@ -272,9 +271,11 @@ public class ASFAResearchObjectSpecies {
 	}
 
 	// creo il file di output in formato JSON e stampo le annotazioni ottenute
-	
-	public static String cleanupNested(String annotatedtext) {
+
+	public static String cleanupNested1(String annotatedtext) {
+
 		
+
 		int idx = annotatedtext.indexOf("[[");
 		if (idx<0)
 			return annotatedtext;
@@ -312,9 +313,41 @@ public class ASFAResearchObjectSpecies {
 			
 			return sb.toString();
 		}
-			
-		
-	} 
+
+	}
+
+	public static String cleanupNested(String str) {
+
+		int idx = str.indexOf("[[");
+		if (idx < 0)
+			return str;
+		else {
+			int l = str.length();
+			char[] newStr = new char[l];
+			int level = 0;
+			for (int i = 0; i < str.length(); ++i) {
+				if (str.charAt(i) == '[') {
+					if (level == 0) // check before incrementing
+						newStr[i] = '[';
+					level++;
+				} else if (str.charAt(i) == ']') {
+					level--;
+					if (level == 0) // check after incrementing
+						newStr[i] = ']';
+				} else {
+					newStr[i] = str.charAt(i);
+				}
+			}
+			StringBuffer sb = new StringBuffer();
+
+			for (int i = 0; i < l; i++) {
+				if (newStr[i] > 0)
+					sb.append(newStr[i]);
+			}
+
+			return sb.toString();
+		}
+	}
 	
 	public void materializeJSON() throws IOException {
 

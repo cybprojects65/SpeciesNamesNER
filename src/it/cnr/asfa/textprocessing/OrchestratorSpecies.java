@@ -8,6 +8,8 @@ public class OrchestratorSpecies {
 
 	@SuppressWarnings("null")
 	public static void main(String[] args) throws Exception {
+		long startTime = System.currentTimeMillis();
+
 		System.out.println("ASFA Text Miner has started...");
 
 		String annotationsParsed[] = null;
@@ -31,9 +33,13 @@ public class OrchestratorSpecies {
 		researchObjectSpecies.materializeJSON();
 		System.out.println("Operazioni species completate");
 
-
 		System.out.println("Done");
 
+		long stopTime = System.currentTimeMillis();
+		long elapsedTime = stopTime - startTime;
+
+		System.out.println("Elapsed time");
+		System.out.println(elapsedTime);
 	}
 
 }

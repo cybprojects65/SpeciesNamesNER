@@ -27,7 +27,9 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 		File fileDir = new File(filename);
 		ArrayList<String> wordsArrayList = new ArrayList<String>();
 
-		try (FileInputStream fis = new FileInputStream(fileDir); InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8); BufferedReader reader = new BufferedReader(isr)) {
+		try (FileInputStream fis = new FileInputStream(fileDir);
+				InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+				BufferedReader reader = new BufferedReader(isr)) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				String[] token = line.replaceAll("[^a-zA-Z ]", " ").split("\\s+");
@@ -75,11 +77,10 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 			referenceThesaurus.add(str.toLowerCase().trim());
 		}
 		in.close();
-
 		String annotationseq = new String();
 		for (int i = 0; i < words.length; i++) {
 			if (matches[i] == true) {
-				// Questa condizione serva per controllare che la tassonomia sia
+				// Questa condizione serve per controllare che la tassonomia sia
 				// seguita da
 				// un'abbreviazione
 				// della parola precedente come nel caso ad esempio di "L.
@@ -156,7 +157,8 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 			}
 
 			if (subannotations.size() > 0) {
-				//System.out.println("Annotation " + annot + " contains thesaurus words " + subannotations);
+				// System.out.println("Annotation " + annot + " contains thesaurus words " +
+				// subannotations);
 				for (String sub : subannotations) {
 					String toSub = "[" + sub + "]";
 					if (!testooriginale.contains(toSub)) {
@@ -165,9 +167,9 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 				}
 			}
 		}
-
+		System.out.println("pulizia in corso");
 		testooriginale = ASFAResearchObjectSpecies.cleanupNested(testooriginale);
-		
+		System.out.println("pulito");
 		// Identificazione indici parentesi di annotazione da inserire nel JSON
 		List<Integer> indices = new ArrayList<>();
 		String primaparentesi = "[";
