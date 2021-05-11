@@ -138,6 +138,7 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 		testooriginale = testooriginale.replace("\n", " ").replace("\r", "");
 		// Rimuovo le possibili parentesi quadre presenti nel testo di input
 		testooriginale = testooriginale.replace("[", " ").replace("]", " ");
+		System.out.println("Annotating...");
 		for (String annot : allAnnotationsequences) {
 
 			List<String> subannotations = new ArrayList<>();
@@ -162,12 +163,41 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 				for (String sub : subannotations) {
 					String toSub = "[" + sub + "]";
 					if (!testooriginale.contains(toSub)) {
-						testooriginale = testooriginale.replace(sub, "[" + sub + "]");
+						
+						String regex = "( |^)"+sub+"(\\W|$)";
+						
+						Pattern p = Pattern.compile(regex);
+						Matcher m = p.matcher(testooriginale);
+						int le = testooriginale.length();
+						StringBuffer sb = new StringBuffer();
+						int s0 = 0;
+						
+					    while (m.find()) {
+					      int s = m.start();
+					      int e = m.end();
+					      if (s==0 && testooriginale.charAt(s)!=' ')
+					       	s=-1;
+					      if (e==le && !Pattern.matches("\\p{Punct}", ""+testooriginale.charAt(e-1)))
+					      	e=le+1;
+					      	//System.out.println("--->>"+testooriginale.substring(s+1,e-1)+" vs "+annot);
+					      	sb.append(testooriginale.substring(s0,s+1));
+					      	sb.append("["+testooriginale.substring(s+1,e-1)+"]");
+					      	s0 = e-1;
+					     }
+					    
+					    if (s0<le)
+					    	sb.append(testooriginale.substring(s0));
+					    testooriginale = sb.toString();
+					    					    
 					}
 				}
 			}
+			
 		}
-		System.out.println("pulizia in corso");
+		
+		System.out.println("..End annotating");
+		
+		System.out.println("Cleaning");
 		testooriginale = ASFAResearchObjectSpecies.cleanupNested(testooriginale);
 		System.out.println("pulito");
 		// Identificazione indici parentesi di annotazione da inserire nel JSON

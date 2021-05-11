@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.nio.charset.StandardCharsets;
 
 import it.cnr.asfa.textprocessing.utils.EfficientSearchInText;
@@ -180,7 +182,7 @@ public class ASFAResearchObjectSpecies {
 			}
 //    		4 - se contiene 1 genus ma è una parola inglese (nella lista common english words) -> scartiamo
 			if (!annotation.contains(" ")) {
-				if (Character.isUpperCase(annotation.charAt(0))) {
+				if (annotation.length()>=3 && Character.isUpperCase(annotation.charAt(0)) && annotation.toLowerCase().equals(annotation.substring(0,1).toLowerCase()+annotation.substring(1))) {
 					if (!(MostCommonEnglishWords.contains(annotation.toLowerCase()))) {
 						checkedallAnnotationsequences.add(annotation);
 					}
@@ -228,11 +230,40 @@ public class ASFAResearchObjectSpecies {
 		testooriginale = testooriginale.replace("\n", " ").replace("\r", "");
 		// Rimuovo le possibili parentesi quadre presenti nel testo di input
 		testooriginale = testooriginale.replace("[", " ").replace("]", " ");
+		
+		System.out.println("Annotating...");
 		for (String annot : checkedallAnnotationsequences) {
 			// if (annot.contains(" ")) {
-			testooriginale = testooriginale.replace(annot, "[" + annot + "]");
+			//testooriginale = testooriginale.replaceAll("annot", "[" + annot + "]");
+			String regex = "( |^)"+annot+"(\\W|$)";
+			
+			Pattern p = Pattern.compile(regex);
+			Matcher m = p.matcher(testooriginale);
+			int le = testooriginale.length();
+			StringBuffer sb = new StringBuffer();
+			int s0 = 0;
+			
+		    while (m.find()) {
+		      int s = m.start();
+		      int e = m.end();
+		      if (s==0 && testooriginale.charAt(s)!=' ')
+		       	s=-1;
+		      if (e==le && !Pattern.matches("\\p{Punct}", ""+testooriginale.charAt(e-1)))
+		      	e=le+1;
+		      	//System.out.println("--->>"+testooriginale.substring(s+1,e-1)+" vs "+annot);
+		      	sb.append(testooriginale.substring(s0,s+1));
+		      	sb.append("["+testooriginale.substring(s+1,e-1)+"]");
+		      	s0 = e-1;
+		     }
+		    
+		    if (s0<le)
+		    	sb.append(testooriginale.substring(s0));
+		    testooriginale = sb.toString();
+		    
 			// }
 		}
+		
+		System.out.println("..End annotating");
 		testooriginale = ASFAResearchObjectSpecies.cleanupNested(testooriginale);
 		// Identificazione indici parentesi di annotazione da inserire nel JSON
 		List<Integer> indices = new ArrayList<>();
@@ -272,51 +303,42 @@ public class ASFAResearchObjectSpecies {
 
 	// creo il file di output in formato JSON e stampo le annotazioni ottenute
 
-	public static String cleanupNested1(String annotatedtext) {
+	public static String cleanupNested(String annotatedtext) {
 
-		
 
 		int idx = annotatedtext.indexOf("[[");
-		if (idx<0)
+		if (idx < 0)
 			return annotatedtext;
 		else {
-			
 			int l = annotatedtext.length();
-			char[] ch = new char[l];
-			for (int i = 0; i < l; i++) {
-	            ch[i] = annotatedtext.charAt(i);
-	        }
-	        
-			int counter = 0;
-			for (int c=idx;c<l;c++) {
-				if (ch[c]=='[') {
-					counter++;
-					if (counter>1)
-						ch[c] = 0;
+			char[] newStr = new char[l];
+			int level = 0;
+			for (int i = 0; i < annotatedtext.length(); ++i) {
+				if (annotatedtext.charAt(i) == '[') {
+					if (level == 0) // check before incrementing
+						newStr[i] = '[';
+					level++;
+				} else if (annotatedtext.charAt(i) == ']') {
+					level--;
+					if (level == 0) // check after incrementing
+						newStr[i] = ']';
+				} else {
+					newStr[i] = annotatedtext.charAt(i);
 				}
 			}
-			
-			for (int c=idx;c<l;c++) {
-				if (ch[c]==']') {
-					counter--;
-					if (counter>0)
-						ch[c] = 0;
-				}
-			}
-			
 			StringBuffer sb = new StringBuffer();
-			
+
 			for (int i = 0; i < l; i++) {
-				if (ch[i]>0)
-					sb.append(ch[i]);
-	        }
-			
+				if (newStr[i] > 0)
+					sb.append(newStr[i]);
+			}
+
 			return sb.toString();
 		}
 
 	}
-
-	public static String cleanupNested(String str) {
+	
+	public static String cleanupNested1(String str) {
 
 		int idx = str.indexOf("[[");
 		if (idx < 0)
@@ -347,8 +369,9 @@ public class ASFAResearchObjectSpecies {
 
 			return sb.toString();
 		}
+
 	}
-	
+
 	public void materializeJSON() throws IOException {
 
 		File file = new File("output.json");

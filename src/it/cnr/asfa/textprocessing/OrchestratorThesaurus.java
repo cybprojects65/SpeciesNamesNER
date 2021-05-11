@@ -24,7 +24,12 @@ public class OrchestratorThesaurus {
 		 * System.exit(0);
 		 */
 		long startTime = System.currentTimeMillis();
-
+/*
+		long total = 0;
+		for (int i = 0; i < 10000000; i++) {
+			total += i;
+		}
+*/
 		String annotationsParsed[] = null;
 		List<String> annotations = null;
 		String language = null;
@@ -33,8 +38,7 @@ public class OrchestratorThesaurus {
 		if (args.length < 1) {
 			System.out.println("Using sample input");
 			args = new String[1];
-			//args[0] = "sampleTextThesaurus.txt";
-			args[0] = "sampleTextThesaurus10000.txt";
+			args[0] = "sampleTextThesaurus.txt";
 		}
 
 		ASFAResearchObjectThesaurus researchObjectThesaurus = new ASFAResearchObjectThesaurus();
@@ -45,14 +49,14 @@ public class OrchestratorThesaurus {
 		researchObjectThesaurus.enrich("Asfa");
 		researchObjectThesaurus.materializeText();
 		researchObjectThesaurus.materializeJSON();
-		System.out.println("Operazioni thesaurus completate");
+		System.out.println("thesaurus operations completed");
 
 		System.out.println("Done");
 
 		long stopTime = System.currentTimeMillis();
 		long elapsedTime = stopTime - startTime;
 
-		System.out.println("Elapsed time");
+		System.out.println("Elapsed Time");
 		System.out.println(elapsedTime);
 
 	}

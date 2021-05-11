@@ -9,7 +9,12 @@ public class OrchestratorSpecies {
 	@SuppressWarnings("null")
 	public static void main(String[] args) throws Exception {
 		long startTime = System.currentTimeMillis();
-
+		/*
+		long total = 0;
+		for (int i = 0; i < 10000000; i++) {
+			total += i;
+		}
+*/
 		System.out.println("ASFA Text Miner has started...");
 
 		String annotationsParsed[] = null;
@@ -21,6 +26,8 @@ public class OrchestratorSpecies {
 			System.out.println("Using sample input");
 			args = new String[1];
 			args[0] = "sampleTextTaxa.txt";
+			//args[0] = "gold_only_text_rev.txt";
+			//args[0] = "gold_test.txt";
 		}
 
 		ASFAResearchObjectSpecies researchObjectSpecies = new ASFAResearchObjectSpecies();
@@ -31,7 +38,7 @@ public class OrchestratorSpecies {
 		researchObjectSpecies.enrich("Taxon");
 		researchObjectSpecies.materializeText();
 		researchObjectSpecies.materializeJSON();
-		System.out.println("Operazioni species completate");
+		System.out.println("Species operations completed");
 
 		System.out.println("Done");
 
