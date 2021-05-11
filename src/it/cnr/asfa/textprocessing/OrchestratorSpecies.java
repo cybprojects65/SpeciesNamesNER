@@ -25,8 +25,8 @@ public class OrchestratorSpecies {
 		if (args.length < 1) {
 			System.out.println("Using sample input");
 			args = new String[1];
-			args[0] = "testText.txt";
-			//args[0] = "gold_only_text_rev.txt";
+			//args[0] = "testText.txt";
+			args[0] = "gold_only_text_rev.txt";
 			//args[0] = "gold_test.txt";
 		}
 

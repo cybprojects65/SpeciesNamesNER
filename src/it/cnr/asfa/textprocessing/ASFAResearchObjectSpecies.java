@@ -233,6 +233,13 @@ public class ASFAResearchObjectSpecies {
 		for (int i = 0; i < ArrayGenusEpithet.length; i++) {
 			if (found[i] == true) {
 				checkedallAnnotationsequences.add(ArrayGenusEpithet[i]);
+			}else {
+				String genus = ArrayGenusEpithet[i].substring(0,ArrayGenusEpithet[i].indexOf(" "));
+				if (genus.length()>=3 && Character.isUpperCase(genus.charAt(0)) && genus.toLowerCase().equals(genus.substring(0,1).toLowerCase()+genus.substring(1))) {
+						if (!(MostCommonEnglishWords.contains(genus.toLowerCase()))) {
+							checkedallAnnotationsequences.add(genus);
+						}
+				}
 			}
 		}
 		System.out.println("Annotating...");
