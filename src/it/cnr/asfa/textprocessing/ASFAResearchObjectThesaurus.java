@@ -158,13 +158,17 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 			}
 
 			if (subannotations.size() > 0) {
+				
+				List<String> ss = new ArrayList<>(subannotations);
+		 		ss.sort((s1, s2) -> s2.length() - s1.length());
+		 		
 				// System.out.println("Annotation " + annot + " contains thesaurus words " +
 				// subannotations);
-				for (String sub : subannotations) {
+				for (String sub : ss) {
 					String toSub = "[" + sub + "]";
 					if (!testooriginale.contains(toSub)) {
 						
-						String regex = "( |^)"+sub+"(\\W|$)";
+						String regex = "(\\W|^)"+sub+"(\\W|$)";
 						
 						Pattern p = Pattern.compile(regex);
 						Matcher m = p.matcher(testooriginale);
@@ -175,7 +179,7 @@ public class ASFAResearchObjectThesaurus extends ASFAResearchObjectSpecies {
 					    while (m.find()) {
 					      int s = m.start();
 					      int e = m.end();
-					      if (s==0 && testooriginale.charAt(s)!=' ')
+					      if (s==0 && !Pattern.matches("\\p{Punct}", ""+testooriginale.charAt(s)))
 					       	s=-1;
 					      if (e==le && !Pattern.matches("\\p{Punct}", ""+testooriginale.charAt(e-1)))
 					      	e=le+1;

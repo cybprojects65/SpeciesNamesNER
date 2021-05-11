@@ -97,6 +97,8 @@ public class ASFAResearchObjectSpecies {
 		category = annotationName;
 		HashSet<String> allAnnotationsequences = new HashSet<>();
 		String annotationseq = new String();
+		String testo = new String(Files.readAllBytes(new File(filename).toPath()));
+				System.out.println("Detecting viable words");
 		for (int i = 0; i < words.length; i++) {
 			if (matches[i] == true) {
 				// Questa condizione serve per controllare che la tassonomia sia seguita da
@@ -104,14 +106,24 @@ public class ASFAResearchObjectSpecies {
 				// della parola precedente come nel caso ad esempio di "L. chalumnae". Viene
 				// controllata la lunghezza della parola precedente che deve essere di
 				// 1 ovvero 0+1 e quandi accorpata all'interno del vettore contenente le parole
-				if (i > 0 && words[i - 1].length() == 1) {
-					words[i] = words[i - 1] + ". " + words[i];
+				if (i > 0 && words[i - 1].length() == 1 && Character.isUpperCase(words[i-1].charAt(0))) {
+					String toSearch = words[i - 1] + ". " + words[i];
+					if (Character.isLowerCase(words[i].charAt(0)) && testo.contains(toSearch))
+						words[i] = words[i - 1] + ". " + words[i];
+					
 				}
 				// se il match attuale è positivo e anche quello precedente allora le due parole
 				// vengono accorpate all'interno di una stringa
 				// temporanea chiamata "annotationseq" che viene resettata ad ogni passo del for
 				if (i > 0 && matches[i - 1] == true) {
-					annotationseq = annotationseq + " " + words[i];
+					if (Character.isUpperCase(words[i].charAt(0))) {
+						allAnnotationsequences.add(annotationseq);
+						annotationseq = (words[i]);
+					}
+					else if (!annotationseq.contains(" ")){
+						annotationseq = annotationseq + " " + words[i];
+					}
+					
 				} else {
 					// a questo punto se questa stringa esiste e quindi se il match è stato fatto
 					// allora questa stringa "annotationseq" viene aggiunta
@@ -132,7 +144,8 @@ public class ASFAResearchObjectSpecies {
 				}
 			}
 		}
-
+		System.out.println("Filtering viable words");
+		testo = null; System.gc();
 		if (annotationseq.length() > 0) {
 			allAnnotationsequences.add(annotationseq);
 			annotationseq = "";
@@ -190,6 +203,7 @@ public class ASFAResearchObjectSpecies {
 			}
 		}
 
+		System.out.println("Checking species scientific names");
 		// Convert ArrayList to Array
 		String[] ArrayGenusEpithet = new String[ArrayListGenusEpithet.size()];
 		ArrayGenusEpithet = ArrayListGenusEpithet.toArray(ArrayGenusEpithet);
@@ -221,7 +235,7 @@ public class ASFAResearchObjectSpecies {
 				checkedallAnnotationsequences.add(ArrayGenusEpithet[i]);
 			}
 		}
-
+		System.out.println("Annotating...");
 		// A questo punto leggo il file originale in modo da stamparlo nuovamente con le
 		// annotazioni
 		String testooriginale = new String(Files.readAllBytes(new File(filename).toPath()));
@@ -231,11 +245,14 @@ public class ASFAResearchObjectSpecies {
 		// Rimuovo le possibili parentesi quadre presenti nel testo di input
 		testooriginale = testooriginale.replace("[", " ").replace("]", " ");
 		
-		System.out.println("Annotating...");
-		for (String annot : checkedallAnnotationsequences) {
+		
+		List<String> ss = new ArrayList<>(checkedallAnnotationsequences);
+ 		ss.sort((s1, s2) -> s2.length() - s1.length());
+ 		
+		for (String annot : ss) {
 			// if (annot.contains(" ")) {
 			//testooriginale = testooriginale.replaceAll("annot", "[" + annot + "]");
-			String regex = "( |^)"+annot+"(\\W|$)";
+			String regex = "(\\W|^)"+annot+"(\\W|$)";
 			
 			Pattern p = Pattern.compile(regex);
 			Matcher m = p.matcher(testooriginale);
@@ -246,7 +263,7 @@ public class ASFAResearchObjectSpecies {
 		    while (m.find()) {
 		      int s = m.start();
 		      int e = m.end();
-		      if (s==0 && testooriginale.charAt(s)!=' ')
+		      if (s==0 && !Pattern.matches("\\p{Punct}", ""+testooriginale.charAt(s)))
 		       	s=-1;
 		      if (e==le && !Pattern.matches("\\p{Punct}", ""+testooriginale.charAt(e-1)))
 		      	e=le+1;
