@@ -20,7 +20,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ComparisonJohn {
+public class ComparisonSeparateGenusSpecies {
 
 	static String[] orchestatorAnnotation;
 	static String[] botanicalNerAnnotation;
@@ -29,35 +29,71 @@ public class ComparisonJohn {
 	// Variabili per il conteggio delle statitiche con le occorreze NON controllate
 	// in GBIF
 
-	static String[] annotazioniComuni;
-	static String[] unicheOrchestatorAnnotation;
-	static String[] unicheBotanicalNerAnnotation;
+	static String[] annotazioniComuniSpecies;
+	static String[] annotazioniComuniGenus;
 
-	static int TP = 0;
-	static int FP = 0;
-	static int TN = 0;
-	static int FN = 0;
+	static String[] unicheOrchestatorAnnotationGenus;
+	static String[] unicheOrchestatorAnnotationSpecies;
 
-	static double accuracy;
-	static double precision;
-	static double recall;
-	static double f1;
+	static String[] unicheBotanicalNerAnnotationGenus;
+	static String[] unicheBotanicalNerAnnotationSpecies;
+
+	static int TPGenus = 0;
+	static int TPSpecies = 0;
+
+	static int FPGenus = 0;
+	static int FPSpecies = 0;
+
+	static int FNGenus = 0;
+	static int FNSpecies = 0;
+
+	static double precisionGenus;
+	static double precisionSpecies;
+
+	static double recallGenus;
+	static double recallSpecies;
+
+	static double f1Genus;
+	static double f1Species;
 
 	// Variabili per il conteggio delle statitiche con le occorreze CONTROLLATE in
 	// GBIF
+
 	static String[] annotazioniComuniChecked;
+	static String[] annotazioniComuniCheckedGenus;
+	static String[] annotazioniComuniCheckedSpecies;
+
 	static String[] unicheOrchestatorAnnotationChecked;
+	static String[] unicheOrchestatorAnnotationCheckedGenus;
+	static String[] unicheOrchestatorAnnotationCheckedSpecies;
+
 	static String[] unicheBotanicalNerAnnotationChecked;
+	static String[] unicheBotanicalNerAnnotationCheckedGenus;
+	static String[] unicheBotanicalNerAnnotationCheckedSpecies;
 
 	static int TPChecked = 0;
-	static int FPChecked = 0;
-	static int TNChecked = 0;
-	static int FNChecked = 0;
+	static int TPCheckedGenus = 0;
+	static int TPCheckedSpecies = 0;
 
-	static double accuracyChecked;
+	static int FPChecked = 0;
+	static int FPCheckedGenus = 0;
+	static int FPCheckedSpecies = 0;
+
+	static int FNChecked = 0;
+	static int FNCheckedGenus = 0;
+	static int FNCheckedSpecies = 0;
+
 	static double precisionChecked;
+	static double precisionCheckedGenus;
+	static double precisionCheckedSpecies;
+
 	static double recallChecked;
+	static double recallCheckedGenus;
+	static double recallCheckedSpecies;
+
 	static double f1Checked;
+	static double f1CheckedGenus;
+	static double f1CheckedSpecies;
 
 	// Estraggo tutte le annotazioni di Orchestator
 	public static void GetOrchestatorAnnotation(String filename) throws IOException {
@@ -211,8 +247,6 @@ public class ComparisonJohn {
 		// Creo un altro array che conterrà solo le specie presenti in
 		// "epithet_genus.csv" che sono nel gold
 
-		ArrayList<String> temp = new ArrayList<String>();
-
 		File genus = new File("epithet_genus.csv");
 		File species = new File("epithet_genus_con_punto.csv");
 		List<String> allGenus = Files.readAllLines(genus.toPath());
@@ -247,13 +281,23 @@ public class ComparisonJohn {
 		// Prendo le annotazioni presenti sia in orchestrator che in botanical
 		// I TRUE POSITIVE sono il numero di elememti (considerati come numero di
 		// parole) in comune tra i due insiemi
-		ArrayList<String> contenitore1 = new ArrayList<String>();
+		ArrayList<String> contenitore1Genus = new ArrayList<String>();
+		ArrayList<String> contenitore1Species = new ArrayList<String>();
+
 		for (int i = 0; i < botanicalNerAnnotation.length; i++) {
 			for (int j = 0; j < orchestatorAnnotation.length; j++) {
 				if (botanicalNerAnnotation[i].equals(orchestatorAnnotation[j])) {
-					contenitore1.add(botanicalNerAnnotation[i]);
-					String[] conteggio1 = botanicalNerAnnotation[i].split("\\s+");
-					TP = TP + conteggio1.length;
+					String[] conteggio = botanicalNerAnnotation[i].split("\\s+");
+					if (conteggio.length == 1) {
+						TPGenus = TPGenus + 1;
+						contenitore1Genus.add(botanicalNerAnnotation[i]);
+
+					} else {
+
+						TPSpecies = TPSpecies + 1;
+						contenitore1Species.add(botanicalNerAnnotation[i]);
+
+					}
 					break;
 				}
 
@@ -261,14 +305,18 @@ public class ComparisonJohn {
 
 		}
 
-		annotazioniComuni = new String[contenitore1.size()];
-		annotazioniComuni = contenitore1.toArray(annotazioniComuni);
+		annotazioniComuniGenus = new String[contenitore1Genus.size()];
+		annotazioniComuniGenus = contenitore1Genus.toArray(annotazioniComuniGenus);
+
+		annotazioniComuniSpecies = new String[contenitore1Species.size()];
+		annotazioniComuniSpecies = contenitore1Species.toArray(annotazioniComuniSpecies);
 
 		// Prendo le anotazioni presenti in orchestrator e non in botanical
 		// I FALSE POSITIVE sono il numero di match (considerati come numero di parole)
 		// che sono unici di orchestrator
 
-		ArrayList<String> contenitore2 = new ArrayList<String>();
+		ArrayList<String> contenitore2Genus = new ArrayList<String>();
+		ArrayList<String> contenitore2Species = new ArrayList<String>();
 
 		for (int i = 0; i < orchestatorAnnotation.length; i++) {
 			boolean match = false;
@@ -280,20 +328,32 @@ public class ComparisonJohn {
 
 			}
 			if (match == false) {
-				contenitore2.add(orchestatorAnnotation[i]);
-				String[] conteggio2 = orchestatorAnnotation[i].split("\\s+");
-				FP = FP + conteggio2.length;
+				String[] conteggio = orchestatorAnnotation[i].split("\\s+");
+				if (conteggio.length == 1) {
+					FPGenus = FPGenus + 1;
+					contenitore2Genus.add(orchestatorAnnotation[i]);
+
+				} else {
+					FPSpecies = FPSpecies + 1;
+					contenitore2Species.add(orchestatorAnnotation[i]);
+
+				}
 			}
 		}
 
-		unicheOrchestatorAnnotation = new String[contenitore2.size()];
-		unicheOrchestatorAnnotation = contenitore2.toArray(unicheOrchestatorAnnotation);
+		unicheOrchestatorAnnotationGenus = new String[contenitore2Genus.size()];
+		unicheOrchestatorAnnotationGenus = contenitore2Genus.toArray(unicheOrchestatorAnnotationGenus);
+
+		unicheOrchestatorAnnotationSpecies = new String[contenitore2Species.size()];
+		unicheOrchestatorAnnotationSpecies = contenitore2Species.toArray(unicheOrchestatorAnnotationSpecies);
 
 		// Prendo le anotazioni presenti in botanical e non in orchestrator
 		// I FALSE NEGATIVE sono il numero di match (considerati come numero di parole)
 		// che sono unici di botanical
 
-		ArrayList<String> contenitore3 = new ArrayList<String>();
+		ArrayList<String> contenitore3Genus = new ArrayList<String>();
+		ArrayList<String> contenitore3Species = new ArrayList<String>();
+
 		for (int i = 0; i < botanicalNerAnnotation.length; i++) {
 			boolean match = false;
 			for (int j = 0; j < orchestatorAnnotation.length; j++) {
@@ -304,67 +364,65 @@ public class ComparisonJohn {
 
 			}
 			if (match == false) {
-				contenitore3.add(botanicalNerAnnotation[i]);
-				String[] conteggio3 = botanicalNerAnnotation[i].split("\\s+");
-				FN = FN + conteggio3.length;
-			}
-		}
+				String[] conteggio = botanicalNerAnnotation[i].split("\\s+");
+				if (conteggio.length == 1) {
+					FNGenus = FNGenus + 1;
+					contenitore3Genus.add(botanicalNerAnnotation[i]);
 
-		unicheBotanicalNerAnnotation = new String[contenitore3.size()];
-		unicheBotanicalNerAnnotation = contenitore3.toArray(unicheBotanicalNerAnnotation);
+				} else {
+					FNSpecies = FNSpecies + 1;
+					contenitore3Species.add(botanicalNerAnnotation[i]);
 
-		// Adesso ho tutti i dati per generare le statistiche
-
-//		I TRUE NEGATIVE sono calcolati sottraendo dal numero totale di parole analizzate 
-//		da orchestrator le altre categorie ovvero TP, FP e FN 
-//		Per ottenere il numero totale di parole analizzate da orchestrator prendo il testo originale
-//		e ri divido le parole utilizzando il medodo di suddivisione originale di orchestrator preso 
-//		dalla specifica classe "ASFAResearchObjectSpecies.java"
-
-		int paroleOrchestrator = 0;
-
-		File fileDir = new File("gold_only_text_rev.txt");
-		ArrayList<String> wordsArrayList = new ArrayList<String>();
-
-		try (FileInputStream fis = new FileInputStream(fileDir);
-				InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-				BufferedReader reader = new BufferedReader(isr)) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				String[] token = line.replaceAll("[^a-zA-Z ]", " ").split("\\s+");
-				for (int i = 0; i < token.length; i++) {
-					paroleOrchestrator++;
 				}
-			}
-			reader.close();
 
-		} catch (IOException e) {
-			e.printStackTrace();
+			}
 		}
 
-		// Ottengo il numero dei TRUE NEGATIVE
-		TN = paroleOrchestrator - TP - FP - FN;
+		unicheBotanicalNerAnnotationGenus = new String[contenitore3Genus.size()];
+		unicheBotanicalNerAnnotationGenus = contenitore3Genus.toArray(unicheBotanicalNerAnnotationGenus);
 
-		precision = (double) TP / (double) (TP + FP);
-		recall = (double) TP / (double) (TP + FN);
-		f1 = 2d * (precision * recall) / (precision + recall);
-		accuracy = (double) (TP + TN) / (double) (TP + TN + FP + FN);
+		unicheBotanicalNerAnnotationSpecies = new String[contenitore3Species.size()];
+		unicheBotanicalNerAnnotationSpecies = contenitore3Species.toArray(unicheBotanicalNerAnnotationSpecies);
 
-		System.out.println("Risultati SENZA il controllo su GBIF");
+		precisionGenus = (double) TPGenus / (double) (TPGenus + FPGenus);
+		recallGenus = (double) TPGenus / (double) (TPGenus + FNGenus);
+		f1Genus = 2d * (precisionGenus * recallGenus) / (precisionGenus + recallGenus);
+
+		precisionSpecies = (double) TPSpecies / (double) (TPSpecies + FPSpecies);
+		recallSpecies = (double) TPSpecies / (double) (TPSpecies + FNSpecies);
+		f1Species = 2d * (precisionSpecies * recallSpecies) / (precisionSpecies + recallSpecies);
+
+		System.out.println("Risultati SENZA	 il controllo su GBIF");
+		System.out.println("\n");
+
+		System.out.println("GENUS");
+		System.out.println("\n");
+
+		System.out.println("TP: " + TPGenus);
+		System.out.println("FP: " + FPGenus);
+		System.out.println("FN: " + FNGenus);
 
 		System.out.println("\n");
 
-		System.out.println("TP: " + TP);
-		System.out.println("FP: " + FP);
-		System.out.println("FN: " + FN);
-		System.out.println("TN: " + TN);
+		System.out.println("Precision: " + precisionGenus);
+		System.out.println("Recall: " + recallGenus);
+		System.out.println("F1 Score: " + f1Genus);
+		System.out.println("\n");
+
+		System.out.println("SPECIES");
 
 		System.out.println("\n");
 
-		System.out.println("Accuracy: " + accuracy);
-		System.out.println("Precision: " + precision);
-		System.out.println("Recall: " + recall);
-		System.out.println("F1 Score: " + f1);
+		System.out.println("TP: " + TPSpecies);
+		System.out.println("FP: " + FPSpecies);
+		System.out.println("FN: " + FNSpecies);
+
+		System.out.println("\n");
+
+		System.out.println("Precision: " + precisionSpecies);
+		System.out.println("Recall: " + recallSpecies);
+		System.out.println("F1 Score: " + f1Species);
+		System.out.println("\n");
 
 	}
 
@@ -373,13 +431,22 @@ public class ComparisonJohn {
 		// Prendo le annotazioni presenti sia in orchestrator che in botanical
 		// I TRUE POSITIVE sono il numero di elememti (considerati come numero di
 		// parole) in comune tra i due insiemi
-		ArrayList<String> contenitore1 = new ArrayList<String>();
+		ArrayList<String> contenitore1Genus = new ArrayList<String>();
+		ArrayList<String> contenitore1Species = new ArrayList<String>();
+
 		for (int i = 0; i < botanicalNerAnnotationChecked.length; i++) {
 			for (int j = 0; j < orchestatorAnnotation.length; j++) {
 				if (botanicalNerAnnotationChecked[i].equals(orchestatorAnnotation[j])) {
-					contenitore1.add(botanicalNerAnnotationChecked[i]);
-					String[] conteggio1 = botanicalNerAnnotationChecked[i].split("\\s+");
-					TPChecked = TPChecked + conteggio1.length;
+					String[] conteggio = botanicalNerAnnotationChecked[i].split("\\s+");
+					if (conteggio.length == 1) {
+						TPCheckedGenus = TPCheckedGenus + 1;
+						contenitore1Genus.add(botanicalNerAnnotationChecked[i]);
+
+					} else {
+						TPCheckedSpecies = TPCheckedSpecies + 1;
+						contenitore1Species.add(botanicalNerAnnotationChecked[i]);
+
+					}
 					break;
 				}
 
@@ -387,14 +454,18 @@ public class ComparisonJohn {
 
 		}
 
-		annotazioniComuniChecked = new String[contenitore1.size()];
-		annotazioniComuniChecked = contenitore1.toArray(annotazioniComuniChecked);
+		annotazioniComuniCheckedGenus = new String[contenitore1Genus.size()];
+		annotazioniComuniCheckedGenus = contenitore1Genus.toArray(annotazioniComuniCheckedGenus);
+
+		annotazioniComuniCheckedSpecies = new String[contenitore1Species.size()];
+		annotazioniComuniCheckedSpecies = contenitore1Species.toArray(annotazioniComuniCheckedSpecies);
 
 		// Prendo le anotazioni presenti in orchestrator e non in botanical
 		// I FALSE POSITIVE sono il numero di match (considerati come numero di parole)
 		// che sono unici di orchestrator
 
-		ArrayList<String> contenitore2 = new ArrayList<String>();
+		ArrayList<String> contenitore2Genus = new ArrayList<String>();
+		ArrayList<String> contenitore2Species = new ArrayList<String>();
 
 		for (int i = 0; i < orchestatorAnnotation.length; i++) {
 			boolean match = false;
@@ -406,20 +477,34 @@ public class ComparisonJohn {
 
 			}
 			if (match == false) {
-				contenitore2.add(orchestatorAnnotation[i]);
-				String[] conteggio2 = orchestatorAnnotation[i].split("\\s+");
-				FPChecked = FPChecked + conteggio2.length;
+
+				String[] conteggio = orchestatorAnnotation[i].split("\\s+");
+				if (conteggio.length == 1) {
+					FPCheckedGenus = FPCheckedGenus + 1;
+					contenitore2Genus.add(orchestatorAnnotation[i]);
+
+				} else {
+					FPCheckedSpecies = FPCheckedSpecies + 1;
+					contenitore2Species.add(orchestatorAnnotation[i]);
+
+				}
 			}
 		}
 
-		unicheOrchestatorAnnotationChecked = new String[contenitore2.size()];
-		unicheOrchestatorAnnotationChecked = contenitore2.toArray(unicheOrchestatorAnnotationChecked);
+		unicheOrchestatorAnnotationCheckedGenus = new String[contenitore2Genus.size()];
+		unicheOrchestatorAnnotationCheckedGenus = contenitore2Genus.toArray(unicheOrchestatorAnnotationCheckedGenus);
+
+		unicheOrchestatorAnnotationCheckedSpecies = new String[contenitore2Species.size()];
+		unicheOrchestatorAnnotationCheckedSpecies = contenitore2Species
+				.toArray(unicheOrchestatorAnnotationCheckedSpecies);
 
 		// Prendo le anotazioni presenti in botanical e non in orchestrator
 		// I FALSE NEGATIVE sono il numero di match (considerati come numero di parole)
 		// che sono unici di botanical
 
-		ArrayList<String> contenitore3 = new ArrayList<String>();
+		ArrayList<String> contenitore3Genus = new ArrayList<String>();
+		ArrayList<String> contenitore3Species = new ArrayList<String>();
+
 		for (int i = 0; i < botanicalNerAnnotationChecked.length; i++) {
 			boolean match = false;
 			for (int j = 0; j < orchestatorAnnotation.length; j++) {
@@ -430,70 +515,68 @@ public class ComparisonJohn {
 
 			}
 			if (match == false) {
-				contenitore3.add(botanicalNerAnnotationChecked[i]);
-				String[] conteggio3 = botanicalNerAnnotationChecked[i].split("\\s+");
-				FNChecked = FNChecked + conteggio3.length;
-			}
-		}
+				String[] conteggio = botanicalNerAnnotationChecked[i].split("\\s+");
+				if (conteggio.length == 1) {
+					FNCheckedGenus = FNCheckedGenus + 1;
+					contenitore3Genus.add(botanicalNerAnnotationChecked[i]);
 
-		unicheBotanicalNerAnnotationChecked = new String[contenitore3.size()];
-		unicheBotanicalNerAnnotationChecked = contenitore3.toArray(unicheBotanicalNerAnnotationChecked);
+				} else {
+					FNCheckedSpecies = FNCheckedSpecies + 1;
+					contenitore3Species.add(botanicalNerAnnotationChecked[i]);
 
-		// Adesso ho tutti i dati per generare le statistiche
-
-//		I TRUE NEGATIVE sono calcolati sottraendo dal numero totale di parole analizzate 
-//		da orchestrator le altre categorie ovvero TP, FP e FN 
-//		Per ottenere il numero totale di parole analizzate da orchestrator prendo il testo originale
-//		e ri divido le parole utilizzando il medodo di suddivisione originale di orchestrator preso 
-//		dalla specifica classe "ASFAResearchObjectSpecies.java"
-
-		int paroleOrchestrator = 0;
-
-		File fileDir = new File("gold_only_text_rev.txt");
-		ArrayList<String> wordsArrayList = new ArrayList<String>();
-
-		try (FileInputStream fis = new FileInputStream(fileDir);
-				InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-				BufferedReader reader = new BufferedReader(isr)) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				String[] token = line.replaceAll("[^a-zA-Z ]", " ").split("\\s+");
-				for (int i = 0; i < token.length; i++) {
-					paroleOrchestrator++;
 				}
-			}
-			reader.close();
 
-		} catch (IOException e) {
-			e.printStackTrace();
+			}
 		}
 
-		// Ottengo il numero dei TRUE NEGATIVE
-		TNChecked = paroleOrchestrator - TPChecked - FPChecked - FNChecked;
+		unicheBotanicalNerAnnotationCheckedGenus = new String[contenitore3Genus.size()];
+		unicheBotanicalNerAnnotationCheckedGenus = contenitore3Genus.toArray(unicheBotanicalNerAnnotationCheckedGenus);
 
-		precisionChecked = (double) TPChecked / (double) (TPChecked + FPChecked);
-		recallChecked = (double) TPChecked / (double) (TPChecked + FNChecked);
-		f1Checked = 2d * (precisionChecked * recallChecked) / (precisionChecked + recallChecked);
-		accuracyChecked = (double) (TPChecked + TNChecked) / (double) (TPChecked + TNChecked + FPChecked + FNChecked);
+		unicheBotanicalNerAnnotationCheckedSpecies = new String[contenitore3Species.size()];
+		unicheBotanicalNerAnnotationCheckedSpecies = contenitore3Species
+				.toArray(unicheBotanicalNerAnnotationCheckedSpecies);
 
+		precisionCheckedGenus = (double) TPCheckedGenus / (double) (TPCheckedGenus + FPCheckedGenus);
+		recallCheckedGenus = (double) TPCheckedGenus / (double) (TPCheckedGenus + FNCheckedGenus);
+		f1CheckedGenus = 2d * (precisionCheckedGenus * recallCheckedGenus)
+				/ (precisionCheckedGenus + recallCheckedGenus);
+
+		precisionCheckedSpecies = (double) TPCheckedSpecies / (double) (TPCheckedSpecies + FPCheckedSpecies);
+		recallCheckedSpecies = (double) TPCheckedSpecies / (double) (TPCheckedSpecies + FNCheckedSpecies);
+		f1CheckedSpecies = 2d * (precisionCheckedSpecies * recallCheckedSpecies)
+				/ (precisionCheckedSpecies + recallCheckedSpecies);
+
+		System.out.println("------------------------------------------------------------------");
 		System.out.println("\n");
-		System.out.println("\n");
-
 		System.out.println("Risultati CON il controllo su GBIF");
+		System.out.println("\n");
+
+		System.out.println("GENUS");
+		System.out.println("\n");
+
+		System.out.println("TP: " + TPCheckedGenus);
+		System.out.println("FP: " + FPCheckedGenus);
+		System.out.println("FN: " + FNCheckedGenus);
 
 		System.out.println("\n");
 
-		System.out.println("TP: " + TPChecked);
-		System.out.println("FP: " + FPChecked);
-		System.out.println("FN: " + FNChecked);
-		System.out.println("TN: " + TNChecked);
+		System.out.println("Precision: " + precisionCheckedGenus);
+		System.out.println("Recall: " + recallCheckedGenus);
+		System.out.println("F1 Score: " + f1CheckedGenus);
+
+		System.out.println("\n");
+		System.out.println("SPECIES");
+		System.out.println("\n");
+
+		System.out.println("TP: " + TPCheckedSpecies);
+		System.out.println("FP: " + FPCheckedSpecies);
+		System.out.println("FN: " + FNCheckedSpecies);
 
 		System.out.println("\n");
 
-		System.out.println("Accuracy: " + accuracyChecked);
-		System.out.println("Precision: " + precisionChecked);
-		System.out.println("Recall: " + recallChecked);
-		System.out.println("F1 Score: " + f1Checked);
+		System.out.println("Precision: " + precisionCheckedSpecies);
+		System.out.println("Recall: " + recallCheckedSpecies);
+		System.out.println("F1 Score: " + f1CheckedSpecies);
 
 	}
 
