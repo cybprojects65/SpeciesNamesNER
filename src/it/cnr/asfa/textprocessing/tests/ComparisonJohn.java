@@ -28,6 +28,8 @@ public class ComparisonJohn {
 
 	// Variabili per il conteggio delle statitiche con le occorreze NON controllate
 	// in GBIF
+	
+	//test
 
 	static String[] annotazioniComuni;
 	static String[] unicheOrchestatorAnnotation;
