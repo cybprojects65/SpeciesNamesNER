@@ -27,7 +27,7 @@ import it.cnr.asfa.textprocessing.utils.EfficientSearchInText;
 
 public class ASFAResearchObjectSpecies {
 
-	// Array dove viene estratto il testo parla per parola per fare i match
+	// Array dove viene estratto il testo parola per parola per fare i match
 	String[] words;
 
 	// Lista di corrispondenze riscontrate nel testo espresse in booleani
@@ -76,6 +76,7 @@ public class ASFAResearchObjectSpecies {
 		// Convert ArrayList to Array
 		words = new String[wordsArrayList.size()];
 		words = wordsArrayList.toArray(words);
+//		System.out.println(Arrays.toString(words));
 
 	}
 
@@ -90,6 +91,8 @@ public class ASFAResearchObjectSpecies {
 		boolean found[] = est.searchParallel(words, referenceTaxa, threads);
 		matches = found;
 		System.out.println("Searching end");
+//		System.out.println(Arrays.toString(matches));
+
 	}
 
 	public void enrich(String annotationName) throws Exception {
@@ -127,7 +130,7 @@ public class ASFAResearchObjectSpecies {
 				} else {
 					// a questo punto se questa stringa esiste e quindi se il match è stato fatto
 					// allora questa stringa "annotationseq" viene aggiunta
-					// ad un vetore contenente i match elaborati chiamato ""annotationseq""
+					// ad un vetore contenente i match elaborati chiamato ""allAnnotationsequences""
 					if (annotationseq.length() > 0) {
 						allAnnotationsequences.add(annotationseq);
 					}
@@ -173,15 +176,10 @@ public class ASFAResearchObjectSpecies {
 			if (annotation.contains(" ")) {
 				if (Character.isUpperCase(annotation.charAt(0))
 						&& Character.isLowerCase(annotation.split(" ")[1].charAt(0))) {
-//    				-> se non c'è nella lista dei "genus epithet" allora scartiamo
+//    				-> se non c'� nella lista dei "genus epithet con punto" allora scartiamo
 //    				-> altrimenti accettiamo
 //					Per velocizare l'operazione questi riscontri vengono salvati in un array in modo da eseguire la search una volta sola con tutti i riscontri in un secondo momento
 					ArrayListGenusEpithet.add(annotation);
-				}
-				// Se è formato da
-				if (Character.isUpperCase(annotation.charAt(0))
-						&& Character.isLowerCase(annotation.split(" ")[1].charAt(0))) {
-
 				}
 //        		2 - se contiene 2 genus -> scartiamo
 				if (Character.isUpperCase(annotation.charAt(0))
